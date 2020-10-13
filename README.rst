@@ -1,4 +1,5 @@
-# ydeos_hydrodynamics
+ydeos_hydrodynamics
+===================
 
 .. image:: https://travis-ci.org/ydeos/ydeos_hydrodynamics.svg?branch=main
     :target: https://travis-ci.org/ydeos/ydeos_hydrodynamics
