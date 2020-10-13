@@ -4,5 +4,6 @@ matplotlib
 pytest
 # ydeos_force (installed by git clone + setup)
 pytest
+hypothesis
 pytest-cov
 coveralls
