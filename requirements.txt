@@ -2,4 +2,7 @@ numpy
 scipy
 matplotlib
 pytest
-ydeos_force
+# ydeos_force (installed by git clone + setup)
+pytest
+pytest-cov
+coveralls

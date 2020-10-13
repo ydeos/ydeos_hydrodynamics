@@ -1,0 +1,15 @@
+language: python
+python:
+  - "3.7"
+  - "3.8"
+install:
+  - pip install -r requirements.txt
+  - cd ..
+  - git clone http://github.com/ydeos/ydeos_forces
+  - cd ydeos_forces
+  - python setup.py install
+  - cd ../ydeos_hydrodynamics
+script:
+  — pytest --cov=ydeos_hydrodynamics
+after_success:
+  — coveralls
