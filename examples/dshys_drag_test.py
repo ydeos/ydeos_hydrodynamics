@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-r"""Sysser01 drag values from various regressions"""
+r"""Sysser01 drag values from various regressions."""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,8 +16,8 @@ plot_type = "viscous+residuary"
 # plot_type = "residuary"
 
 
-class Sysser01(object):
-    r"""Data container class for Sysser01"""
+class Sysser01:
+    r"""Data container class for Sysser01."""
     Vc = 0.0376136
     lwl = 1.6
     bwl = 0.5072
@@ -133,7 +133,8 @@ if plot_type == "viscous+residuary":
                                                             2.179,
                                                             2.377]]
 
-    r = [0.257851, 0.616414, 1.1084, 1.88482, 3.01934, 4.75255, 9.79318, 19.4122, 32.7027, 44.5576, 51.149]
+    r = [0.257851, 0.616414, 1.1084, 1.88482, 3.01934, 4.75255, 9.79318,
+         19.4122, 32.7027, 44.5576, 51.149]
 
     plt.scatter(f, r, label="Towing tank -Upright")
 

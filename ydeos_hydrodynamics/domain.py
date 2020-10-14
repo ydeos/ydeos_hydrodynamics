@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Domain validity checks"""
+r"""Domain validity checks."""
 
 import logging
 import warnings
@@ -17,11 +17,13 @@ def check_domain(domain: str,
                  upper: float,
                  value: float) -> bool:
     r"""Check a value is within the lower to upper range.
-    IF it isn't, report using the domain and the quantity"""
+
+    IF it isn't, report using the domain and the quantity
+
+    """
     if lower <= value <= upper:
         return True
-    else:
-        msg = '%s [%f] is outside the %s range [%s - %s]' % (quantity, value, domain, lower, upper)
-        warnings.warn(msg)
-        logger.warning(msg)
-        return False
+    msg = f"{quantity} [{value}] is outside the %s range [{lower} - {upper}]"
+    warnings.warn(msg)
+    logger.warning(msg)
+    return False

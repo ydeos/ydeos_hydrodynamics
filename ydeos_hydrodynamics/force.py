@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Notion of force across the library"""
+r"""Notion of force across the library."""
 
 import collections
 

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Wetted area estimates"""
+r"""Wetted area estimates."""
 
 from scipy.interpolate import interp1d
 from ydeos_hydrodynamics.memoize import memoize
@@ -28,7 +28,8 @@ def _get_interpolator_wetted_area(upright_wsa: float, bwl: float, Tc: float, Cm:
 
 
 def wetted_area(upright_wsa: float, bwl: float, Tc: float, Cm: float, heel: float) -> float:
-    r"""Estimated wetted area for a given heel_angle
+    r"""Estimated wetted area for a given heel_angle.
+
     Estimation of wetted surface area when heeled
     Value out of -35° <-> 35° of heel is equal to the value at 35°
 

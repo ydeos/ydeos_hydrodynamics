@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Holtrop-Mennen resistance estimates"""
+r"""Holtrop-Mennen resistance estimates."""
 
 from typing import Tuple
 from math import sqrt, exp, pi, cos
@@ -17,7 +17,7 @@ def holtrop_wetted_area(lwl: float,
                         Cb: float,
                         Cwp: float,
                         Abt: float) -> float:
-    r"""Wetted area estimate from hull parameters
+    r"""Wetted area estimate from hull parameters.
 
     Cb : block coefficient
     Cwp : coefficient of waterplane
@@ -28,23 +28,27 @@ def holtrop_wetted_area(lwl: float,
 
 
 def _lcb_fraction_to_lcb_holtrop(lcb_fraction: float) -> float:
-    r"""0.5x format conversion to holtrop percentage"""
+    r"""0.5x format conversion to holtrop percentage."""
     return (0.5 - lcb_fraction) * 100
 
 
 def _holtrop_Lr(lwl: float, Cp: float, lcb_fraction: float) -> float:
-    r"""Run length"""
+    r"""Run length."""
     return lwl * (1 - Cp + 0.06 * Cp * _lcb_fraction_to_lcb_holtrop(lcb_fraction) / (4 * Cp - 1))
 
 
 def _c3func(Abt, B, T, Tf, h_B):
-    r"""Holtrop c3 coefficient"""
+    r"""Holtrop c3 coefficient."""
     return 0.56 * Abt**1.5 / (B * T * (0.31 * sqrt(Abt) + Tf - h_B))
 
 
 def _c2func(c3_):
-    r"""Holtrop c2 coefficient. c2 is a parameter that accounts for
-    the reduction of the wave resistance due to the action of a bulbous bow"""
+    r"""Holtrop c2 coefficient.
+
+    c2 is a parameter that accounts for
+    the reduction of the wave resistance due to the action of a bulbous bow
+
+    """
     return exp(-1.89 * sqrt(c3_))
 
 
@@ -58,7 +62,7 @@ def holtrop_friction(v: float,
                      S: float,
                      rho_water: float = RHO_SEA_WATER_20C,
                      kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C) -> Tuple[float, ...]:
-    r"""Holtrop friction drag and form factor"""
+    r"""Holtrop friction drag and form factor."""
     lcb = _lcb_fraction_to_lcb_holtrop(lcb_fraction)
     Lr = _holtrop_Lr(lwl, Cp, lcb_fraction)
     c12 = (T / lwl)**0.2228446 if T / lwl > 0.05 else 0.479948 if T / lwl < 0.02 else 48.2 * (T/lwl - 0.02)**2.078 + 0.479948
@@ -74,7 +78,7 @@ def holtrop_appendages(v: float,
                        k2_app: Tuple[float, ...] = (),
                        rho_water: float = RHO_SEA_WATER_20C,
                        kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C) -> float:
-    r"""Holtrop resistance of appendages
+    r"""Holtrop resistance of appendages.
 
     S_app : tuple of appendage surfaces
     d_app : tuple of appendage typical dimension
@@ -95,8 +99,9 @@ def holtrop_appendages(v: float,
     bilge keels                 1.4
 
     """
-    assert len(S_app) == len(d_app) == len(k2_app)
-    # r_appendage = lambda d, S, k2: 0.5 * rho_water * S * v ** 2 * (1 + k2) * ittc57(v, d, kinematic_viscosity)
+    if not len(S_app) == len(d_app) == len(k2_app):
+        raise ValueError("Different lengths for S_app, d_app and k2_app")
+
     r_appendages = sum(
         [(lambda d, S, k2: 0.5 * rho_water * S * v ** 2 * (1 + k2) * ittc57(v, d,
                                                                             kinematic_viscosity))(
@@ -109,7 +114,8 @@ def holtrop_bow_thruster_opening(v: float,
                                  d_bto: float,
                                  Cbto: float = 0.0075,
                                  rho_water: float = RHO_SEA_WATER_20C) -> float:
-    r"""Bow thruster opening resistance,
+    r"""Bow thruster opening resistance.
+
     not included in the global Holtrop-Mennen method.
 
     d_bto : bow thruster opening diameter
@@ -131,11 +137,10 @@ def holtrop_wave(v: float,
                  Cwp: float,  # waterplane area coefficient
                  Abt: float,  # Transverse bulb area
                  h_B: float,
-                 # h_B is the position of the centre of the transverse area Abt above the keel line
                  Tf: float,  # forward draught of the ship
                  rho_water: float = RHO_SEA_WATER_20C,
                  gravity: float = GRAVITY_STANDARD) -> Tuple[float, ...]:
-    r"""Holtrop wave-making and wave-breaking resistance
+    r"""Holtrop wave-making and wave-breaking resistance.
 
     At : immersed part of the transverse area of the transom  at zero speed
 
@@ -180,7 +185,7 @@ def holtrop_bulbous(v: float,
                     Tf: float,
                     rho_water: float = RHO_SEA_WATER_20C,
                     gravity: float = GRAVITY_STANDARD) -> Tuple[float, ...]:
-    r"""Holtrop additional resistance of bulbous bow near the water surface
+    r"""Holtrop additional resistance of bulbous bow near the water surface.
 
     Parameters
     ----------
@@ -201,7 +206,7 @@ def holtrop_transom(v: float,
                     Cwp: float,  # waterplane area coefficient
                     rho_water: float = RHO_SEA_WATER_20C,
                     gravity: float = GRAVITY_STANDARD) -> Tuple[float, ...]:
-    r"""Holtrop additional pressure resistance of immersed transom stern"""
+    r"""Holtrop additional pressure resistance of immersed transom stern."""
     FnT = v / sqrt(2 * gravity * At / (B + B * Cwp))
     c6 = 0.2 * (1 - 0.2 * FnT) if FnT < 0.5 else 0
     return 0.5 * rho_water * v**2 * At * c6, c6, FnT
@@ -217,14 +222,17 @@ def holtrop_a(v: float,
               h_B: float,
               Tf: float,
               rho_water: float = RHO_SEA_WATER_20C) -> Tuple[float, ...]:
-    r"""Holtrop model-ship correlation resistance. Primarily describes the
-    effect of the hull roughness and the still-air resistance
+    r"""Holtrop model-ship correlation resistance.
+
+    Primarily describes the effect of the hull roughness
+    and the still-air resistance
 
     Parameters
     ----------
     Cb : block coefficient
     Abt : Transverse bulb area
-    h_B : h_B is the position of the centre of the transverse area Abt above the keel line
+    h_B : h_B is the position of the centre of the transverse area Abt
+          above the keel line
     Tf : forward draught of the ship
 
     """
@@ -257,10 +265,14 @@ def holtrop_mennen(v: float,
                    rho_water: float = RHO_SEA_WATER_20C,
                    kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
                    gravity: float = GRAVITY_STANDARD) -> Tuple[Tuple[float, float, float, float, float, float, float], float]:
-    r"""Holtrop-Mennen power prediction of high block ships with low L/B ratios and of slender naval ships with
-    a complex appendage arrangement and immersed transom sterns
+    r"""Holtrop Mennen model.
 
-    The output is not wrapped in a Force since it will probably never be used in a VPP.
+    Holtrop-Mennen power prediction of high block ships with low L/B ratios
+    and of slender naval ships with a complex appendage arrangement
+    and immersed transom sterns
+
+    The output is not wrapped in a Force since it will probably
+    never be used in a VPP.
 
     h_B : position of the centre of the transverse area Abt above the keel line
     Tf : forward draught of the ship
@@ -276,10 +288,37 @@ def holtrop_mennen(v: float,
     Ro-ro, ferries          0.35	            0.55-0.67	5.3-8.0	        3.2-4.0
 
     """
-
-    r_friction, k1, c12, c13, Cf = holtrop_friction(v, lwl, B, T, Cp, lcb_fraction, afterbody_shape, S, rho_water, kinematic_viscosity)
-    r_appendages = holtrop_appendages(v, S_app, d_app, k2_app, rho_water, kinematic_viscosity)
-    r_wave, c1, c5, c7, c15, m1, m2, lambda_ = holtrop_wave(v, Vc, lwl, B, T, Cp, lcb_fraction, At, Cm, Cwp, Abt, h_B, Tf, rho_water, gravity)
+    r_friction, k1, c12, c13, Cf = holtrop_friction(v,
+                                                    lwl,
+                                                    B,
+                                                    T,
+                                                    Cp,
+                                                    lcb_fraction,
+                                                    afterbody_shape,
+                                                    S,
+                                                    rho_water,
+                                                    kinematic_viscosity)
+    r_appendages = holtrop_appendages(v,
+                                      S_app,
+                                      d_app,
+                                      k2_app,
+                                      rho_water,
+                                      kinematic_viscosity)
+    r_wave, c1, c5, c7, c15, m1, m2, lambda_ = holtrop_wave(v,
+                                                            Vc,
+                                                            lwl,
+                                                            B,
+                                                            T,
+                                                            Cp,
+                                                            lcb_fraction,
+                                                            At,
+                                                            Cm,
+                                                            Cwp,
+                                                            Abt,
+                                                            h_B,
+                                                            Tf,
+                                                            rho_water,
+                                                            gravity)
     r_bulbous, Pb, Fni = holtrop_bulbous(v, Abt, h_B, Tf, rho_water, gravity)
     r_transom, c6, FnT = holtrop_transom(v, B, At, Cwp, rho_water, gravity)
     r_a, c4, Ca = holtrop_a(v, lwl, B, T, S, Cb, Abt, h_B, Tf, rho_water)

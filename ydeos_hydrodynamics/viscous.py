@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Viscous resistance estimates"""
+r"""Viscous resistance estimates."""
 
 from typing import Tuple, Callable, Optional
 from ydeos_hydrodynamics.constants import RHO_SEA_WATER_20C, KINEMATIC_VISCOSITY_WATER_20C
@@ -15,12 +15,12 @@ def hull_viscous(boatspeed: float,
                  lwl: float,
                  Sc: float,
                  coe: Optional[Tuple[float, float, float]] = None,
-                 lwl_multiplier: Optional[float] = 0.7,
-                 transition_reynolds_number: Optional[float] = 5e5,
-                 form_factor: Optional[float] = 1.12,
-                 rho_water: Optional[float] = RHO_SEA_WATER_20C,
-                 kinematic_viscosity: Optional[float] = KINEMATIC_VISCOSITY_WATER_20C,
-                 turbulent_friction_line: Optional[Callable] = ittc57) -> Force:
+                 lwl_multiplier: float = 0.7,
+                 transition_reynolds_number: float = 5e5,
+                 form_factor: float = 1.12,
+                 rho_water: float = RHO_SEA_WATER_20C,
+                 kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
+                 turbulent_friction_line: Callable = ittc57) -> Force:
     """Calculate the friction resistance [N] on the hull.
 
     boatspeed : boat speed [m/s]
@@ -31,7 +31,8 @@ def hull_viscous(boatspeed: float,
         For viscous resistance, the surfacic barycentre of the underwater
             hull is an acceptable estimate.
         x=lwl / 2 , y = 0., z = -Tc/3 is another acceptable estimate.
-    lwl_multiplier : Multiplier of the waterline length (used for Reynolds number calculation).
+    lwl_multiplier : Multiplier of the waterline length
+        (used for Reynolds number calculation).
         The ITTC 57 practice is to use 0.7. Must be between 0.7 and 1.0.
     transition_reynolds_number : The Reynolds number at which the flow
         transitions from laminar to turbulent.
@@ -40,7 +41,7 @@ def hull_viscous(boatspeed: float,
         (default 1.12 (embedded ITTC57 form factor))
         Must be between 0.9 and 1.6
     rho_water : Water density [kg/m**3], must be >= 0.
-    kinematic_viscosity : defaults to kinematic viscosity of water at 20°C : 1,004*10E-6 [m**2/s]
+    kinematic_viscosity : defaults to water at 20°C : 1,004*10E-6 [m**2/s]
     turbulent_friction_line : the function used to compute the turbulent Cf
         (e.g. ittc57, hughes), used in prandtl
 
@@ -98,9 +99,10 @@ def appendage_viscous(boatspeed: float,
                       kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
                       turbulent_friction_line: Callable = ittc57) -> Force:
     """Calculate the viscous resistance [N] on an appendage.
+
     (For example, on a keel fin, a rudder, a centreboard ....)
-    ANS stands for ANy Speed.
-    The centre of effort position is approximated to rotate around the X axis with heel.
+    The centre of effort position is approximated to rotate
+    around the X axis with heel.
 
     boatspeed : boat speed [m/s]
     heel_angle : The heel_angle [degrees], between -90 and 90.
@@ -111,17 +113,19 @@ def appendage_viscous(boatspeed: float,
     average_chord : Average chord of the appendage [m] , must be > 0.
     thickness_to_chord : Thickness to chord ratio of keel
         (e.g.0.1 for NACA0010). Must be between 0 and 0.4
-    wetted_area : WSA - Wetted Surface Area of the appendage [m**2], must be >= 0
+    wetted_area : WSA - Wetted Surface Area of the appendage [m**2],
+                  must be >= 0
     transition_reynolds_number : The Reynolds number at which the flow
         transitions from laminar to turbulent.
         A value of 0 denotes a fully turbulent flow.
         Optional (default 500 000 (5e5)). Must be >=0.
     rho_water : Water density [kg/m**3], must be >= 0 (default RHO_SEA_WATER)
-    kinematic_viscosity : defaults to kinematic viscosity of water at 20°C : 1,004*10E-6 [m**2/s]
+    kinematic_viscosity : defaults to water at 20°C : 1,004*10E-6 [m**2/s]
     turbulent_friction_line : the function used to compute the turbulent Cf
         (e.g. ittc57, hughes), used in prandtl
 
-    Returns a Force object, representing the viscous resistance [N] on an appendage.
+    Returns a Force object, representing the viscous resistance [N]
+    on an appendage.
 
     References
     ----------
@@ -138,7 +142,8 @@ def appendage_viscous(boatspeed: float,
     if transition_reynolds_number < 0:
         raise ValueError("transition_reynolds_number should be positive or zero")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
     if kinematic_viscosity <= 0:
         raise ValueError("kinematic viscosity should be strictly positive")
     if turbulent_friction_line not in [ittc57, hughes]:
@@ -169,29 +174,34 @@ def ballast_viscous(boatspeed: float,
                     kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
                     turbulent_friction_line: Callable = ittc57) -> Force:
     """Calculates the viscous resistance [N] on a bulb.
-    ANS stands for ANy Speed.
-    The centre of effort position is approximated to rotate around the X axis with heel.
+
+    The centre of effort position is approximated to rotate
+    around the X axis with heel.
 
     boatspeed : boat speed [m/s]
     heel_angle : The heel_angle [degrees], between -90 and 90.
     coe : tuple of 3 floats
         Represents the x, y, z coordinates of the centre of effort.
-        For viscous resistance, the surfacic barycentre of the bulb is an acceptable estimate.
+        For viscous resistance, the surfacic barycentre of the bulb
+        is an acceptable estimate.
     bulb_length : length of the bulb [m] , must be > 0.
-    bulb_diameter : Maximum diameter [m] of the bulb, if the cross section is circular
-        Otherwise, use : sqrt (4 * Amax / pi) where Amax is the maximum cross section area
-        bulb_diameter / bulb_length must be between 0 and 0.4
+    bulb_diameter : Maximum diameter [m] of the bulb,
+                   if the cross section is circular
+                   Otherwise, use : sqrt (4 * Amax / pi) where Amax is the
+                   maximum cross section area
+                   bulb_diameter / bulb_length must be between 0 and 0.4
     bulb_wetted_area : Total Bulb Wetted Surface Area [m**2], must be >= 0
     transition_reynolds_number : The Reynolds number at which the flow
         transitions from laminar to turbulent.
         (default 500 000 (5e5)). Must be >=0.
         A value of 0 denotes a fully turbulent flow.
     rho_water : Water density [kg/m**3], must be >= 0 (default RHO_SEA_WATER)
-    kinematic_viscosity : defaults to kinematic viscosity of water at 20°C : 1,004*10E-6 [m**2/s]
+    kinematic_viscosity : defaults to water at 20°C : 1,004*10E-6 [m**2/s]
     turbulent_friction_line : the function used to compute the turbulent Cf
         (e.g.    ittc57, hughes), used in prandtl
 
-    Returns a Force object, representing the viscous resistance [N] on an appendage.
+    Returns a Force object, representing the viscous resistance [N]
+    on an appendage.
 
     References
     ----------
@@ -210,7 +220,8 @@ def ballast_viscous(boatspeed: float,
     if transition_reynolds_number < 0:
         raise ValueError("transition_reynolds_number should be positive or zero")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
     if kinematic_viscosity <= 0:
         raise ValueError("kinematic viscosity should be strictly positive")
     if turbulent_friction_line not in [ittc57, hughes]:

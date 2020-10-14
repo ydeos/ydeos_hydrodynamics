@@ -1,10 +1,10 @@
 # coding: utf-8
 
-r"""Memoization"""
+r"""Memoization."""
 
 
 def memoize(func):
-    """Memoization decorator for functions taking args and kwargs"""
+    """Memoization decorator for functions taking args and kwargs."""
     # cache = func.cache = {}  # causes an issue with Cython
     cache = {}
 

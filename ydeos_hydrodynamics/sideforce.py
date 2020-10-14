@@ -1,14 +1,13 @@
 # coding: utf-8
 
-r"""Sideforce and corresponding resistance estimates"""
+r"""Sideforce and corresponding resistance estimates."""
 
 from typing import Tuple, Optional
-import sys
 from math import cos, radians, pi, sin, degrees, sqrt, tan
+
 from ydeos_hydrodynamics.constants import RHO_SEA_WATER_20C
 from ydeos_hydrodynamics.force import Force
 from ydeos_hydrodynamics.water import RHO_WATER_MIN, RHO_WATER_MAX
-from ydeos_hydrodynamics.reynolds import reynolds_number
 from ydeos_hydrodynamics.geometry import shift_coe_around_x
 
 
@@ -167,10 +166,12 @@ def sideforce_production_keuning_verwerft(boatspeed: float,
                                           hull_coe: Optional[Tuple[float, float, float]] = None,
                                           keel_coe: Optional[Tuple[float, float, float]] = None,
                                           rudder_coe: Optional[Tuple[float, float, float]] = None,
-                                          keel_sweep_back_angle: Optional[float] = 0.,
-                                          rudder_sweep_back_angle: Optional[float] = 0.,
-                                          rho_water: Optional[float] = RHO_SEA_WATER_20C) -> Tuple[Force, Force, Force]:
-    """Calculate the lift (i.e. sideforce) and drag due to lift [N] according
+                                          keel_sweep_back_angle: float = 0.,
+                                          rudder_sweep_back_angle: float = 0.,
+                                          rho_water: float = RHO_SEA_WATER_20C) -> Tuple[Force, Force, Force]:
+    """Sideforce the Keuning Verwerft way.
+
+    Calculate the lift (i.e. sideforce) and drag due to lift [N] according
     to the 2009 publication by Keuning and Verwerft.
     Viscous effects are not accounted for;
     other components are available to represent the viscous drag of the hull and its appendages.

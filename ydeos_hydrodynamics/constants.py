@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Constants used in hydrodynamics"""
+r"""Constants used in hydrodynamics."""
 
 GRAVITY_STANDARD = 9.80665
 

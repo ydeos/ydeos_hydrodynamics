@@ -9,9 +9,6 @@ import hypothesis.strategies as st
 from ydeos_hydrodynamics.savitski import _cl_beta_cl_zero, _lambda
 
 
-# Savitsky hypothesis test
-
-
 @given(boatspeed=st.floats(min_value=0.01, exclude_min=True, max_value=200.),
        m=st.floats(min_value=0.01, exclude_min=True, max_value=500000000.),
        b=st.floats(min_value=0.01, exclude_min=True, max_value=500.),
@@ -28,13 +25,3 @@ def test_cl_beta_cl_zero(boatspeed, m, b, beta):
 def test_lambda(trim_angle, Cv, Cl_zero):
     lambda_ = _lambda(trim_angle, Cv, Cl_zero)
     assert lambda_ > 0.
-
-# End Savitsky hypothesis tests
-
-
-if __name__ == '__main__':
-    pass
-    # Savitsky
-    # test_cl_beta_cl_zero()
-    # test_lambda()
-    # End Savitsky

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Savitski method for planning hulls"""
+r"""Savitski method for planning hulls."""
 
 from typing import Callable, Union, Tuple
 from math import sqrt, radians, cos, tan, sin
@@ -22,10 +22,9 @@ def root_scalar_no_fallback(func: Callable,
                             xtol: float,
                             min_value: float) -> Union[float, None]:
     sol = root_scalar(func, method="secant", x0=x0, x1=x1, xtol=xtol)
-    if sol.converged is True and type(sol.root) == float and sol.root > min_value:
+    if sol.converged is True and isinstance(sol.root, float) and sol.root > min_value:
         return sol.root
-    else:
-        return None
+    return None
 
 
 def root_scalar_with_fallback(func: Callable,
@@ -34,16 +33,18 @@ def root_scalar_with_fallback(func: Callable,
                               bracket: Tuple[float, float],
                               xtol: float,
                               min_value: float) -> Union[float, None]:
-    r"""Root finding that tries another method if the first did not work properly"""
+    r"""Root finding with fallback.
+
+    Root finding that tries another method if the first did not work properly
+
+    """
     sol = root_scalar(func, method="secant", x0=x0, x1=x1, xtol=xtol)
-    if sol.converged is True and type(sol.root) == float and sol.root > min_value:
+    if sol.converged is True and isinstance(sol.root, float) and sol.root > min_value:
         return sol.root
-    else:
-        sol = root_scalar(func, method="brentq", bracket=bracket, xtol=xtol)
-        if sol.converged is True and type(sol.root) == float and sol.root > min_value:
-            return sol.root
-        else:
-            return None
+    sol = root_scalar(func, method="brentq", bracket=bracket, xtol=xtol)
+    if sol.converged is True and isinstance(sol.root, float) and sol.root > min_value:
+        return sol.root
+    return None
 
 
 def _cl_beta_cl_zero(boatspeed: float,
@@ -52,13 +53,16 @@ def _cl_beta_cl_zero(boatspeed: float,
                      beta: float,
                      rho_water: float = RHO_SEA_WATER_20C,
                      gravity: float = GRAVITY_STANDARD) -> Tuple[float, float]:
-    r"""Determine the lift coefficients for a 'beta' deadrise angle (-> Cl_beta)
+    r"""Lift coefficients vs deadrise angle.
+
+    Determine the lift coefficients for a 'beta' deadrise angle (-> Cl_beta)
     and for a zero deadrise angle (-> Cl_zero)
 
     boatspeed : [m/s]
     m : Mass displacement [kg]
     b : maximum beam between chines (or between spray rails) [m]
-    beta : deadrise angle (take the average of the angles at the transom and at the CG) [degrees]
+    beta : deadrise angle (take the average of the angles at the transom
+           and at the CG) [degrees]
            zero for an absolutely flat bottom
 
     Returns a tuple of (Cl_beta, Cl_zero)
@@ -67,55 +71,62 @@ def _cl_beta_cl_zero(boatspeed: float,
     # Lift coefficient for beta deadrise angle
     Cl_beta = m * gravity / (0.5 * rho_water * boatspeed**2 * b**2)
 
-    # The check might seem useless but floating point precision near zero may play bad tricks !!
-    if type(Cl_beta) == float and Cl_beta > 0:
+    # The check might seem useless but floating point precision near
+    # zero may play bad tricks !!
+    if isinstance(Cl_beta, float) and Cl_beta > 0:
         # Determine Cl_zero
         def func(cl_z):
-            r"""Function for which we search a root"""
+            r"""Function for which we search a root."""
             # Cl_beta = cl_zero - 0.0065 * beta * cl_zero**0.6
             return cl_z - 0.0065 * beta * cl_z**0.6 - Cl_beta
 
-        Cl_zero = root_scalar_with_fallback(func, x0=Cl_beta, x1=10*Cl_beta,
-                                            bracket=(0., 100.), xtol=1e-6, min_value=0.)
+        Cl_zero = root_scalar_with_fallback(func,
+                                            x0=Cl_beta,
+                                            x1=10*Cl_beta,
+                                            bracket=(0., 100.),
+                                            xtol=1e-6,
+                                            min_value=0.)
 
         if Cl_zero is not None:
             return Cl_beta, Cl_zero
-        else:
-            raise RuntimeError("Could not find a solution for Cl_zero")
-    else:
-        raise RuntimeError("Cl_beta is expected to be a strictly positive float, but isn't")
+        raise RuntimeError("Could not find a solution for Cl_zero")
+    raise RuntimeError("Cl_beta is expected to be a strictly "
+                       "positive float, but isn't")
 
 
 def _lambda(trim_angle: float, Cv: float, Cl_zero: float) -> float:
-    r"""Determine lambda (mean wetted length to beam ratio)
+    r"""Determine lambda (mean wetted length to beam ratio).
 
     trim_angle [degrees] must be positive (exponentiation by 1.1 would create
     a complex number if trim_angle < 0)
     Cv : Beam Froude Number / Speed coefficient
     Cl_zero : lift coefficient for a zero deadrise angle
+
     """
     #
     def func(lambd):
-        r"""Function for which we search a root"""
+        r"""Function for which we search a root."""
         return trim_angle**1.1 * (0.012 * lambd**0.5 + 0.0055 * lambd**2.5 / Cv**2) - Cl_zero
 
-    # Could not use the fallback version as the bracket elements have the same sign
-    lambda_ = root_scalar_no_fallback(func, x0=0., x1=10., xtol=1e-6, min_value=0.)
+    # Could not use the fallback version as the bracket elements
+    # have the same sign
+    lambda_ = root_scalar_no_fallback(func, x0=0.,
+                                      x1=10.,
+                                      xtol=1e-6,
+                                      min_value=0.)
 
     if lambda_ is not None:
         return lambda_
-    else:
-        # It is ugly, yet better than finding no solution
-        lambdas = np.linspace(0, 100, 1000)
-        results = [func(l) for l in lambdas]
-        if min(results) > 0. or max(results) < 0.:
-            # no chance to find a solution
-            # TODO : is it better to raise or to return an arbitrary realistic value ?
-            # raise RuntimeError("Could not find a solution for lambda")
-            return 1.
-        else:
-            i = interp1d(results, lambdas)
-            return i(0.)
+    # It is ugly, yet better than finding no solution
+    lambdas = np.linspace(0, 100, 1000)
+    results = [func(lam_) for lam_ in lambdas]
+    if min(results) > 0. or max(results) < 0.:
+        # no chance to find a solution
+        # TODO : is it better to raise or to return an arbitrary realistic value ?
+        # raise RuntimeError("Could not find a solution for lambda")
+        return 1.
+    i = interp1d(results, lambdas)
+    return i(0.)
 
 
 def bow_down_moment(boatspeed: float,
@@ -130,7 +141,7 @@ def bow_down_moment(boatspeed: float,
                     rho_water: float = RHO_SEA_WATER_20C,
                     kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
                     gravity: float = GRAVITY_STANDARD) -> Tuple[float, ...]:
-    r"""Computes the bow down moment
+    r"""Computes the bow down moment.
 
     boatspeed : [m/s]
     trim_angle : bow up is positive [degrees]
@@ -147,7 +158,12 @@ def bow_down_moment(boatspeed: float,
 
     """
     Cv = boatspeed / sqrt(gravity * b)  # Speed coefficient / Beam Froude Number
-    Cl_beta, Cl_zero = _cl_beta_cl_zero(boatspeed, m, b, beta, rho_water, gravity)
+    Cl_beta, Cl_zero = _cl_beta_cl_zero(boatspeed,
+                                        m,
+                                        b,
+                                        beta,
+                                        rho_water,
+                                        gravity)
     lambda_ = _lambda(trim_angle, Cv, Cl_zero)
     Lm = lambda_ * b  # Mean wetted length
     Cf = ittc57(boatspeed, Lm, kinematic_viscosity)
@@ -208,7 +224,8 @@ def savitsky(boatspeed: float,
     trim angle (i.e. bow down moment = 0) before computing the resistance.
     The procedure is explained in Principles of Yacht Design p185-195 (procedure p192)
 
-    trim angles must remains positive as the exponentiation by 1.1 in _lambda would create a complex
+    trim angles must remains positive as the exponentiation
+    by 1.1 in _lambda would create a complex
 
     boatspeed : [m/s]
     m : Mass displacement [kg]
@@ -216,7 +233,9 @@ def savitsky(boatspeed: float,
     VCG : distance from baseline (keel) to CG [m]
     b : maximum beam between chines (or between spray rails) [m]
     epsilon : propeller shaft inclination relative to baseline [degrees]
-    beta : deadrise angle (take the average of the angles at the transom and at the CG) [degrees]
+    beta : deadrise angle
+           (take the average of the angles at the transom and at the CG)
+           [degrees]
            zero for an absolutely flat bottom
     f : distance between shaftline and CG [m]
 
@@ -236,16 +255,30 @@ def savitsky(boatspeed: float,
     if not 0. <= beta <= 45.:
         raise ValueError("beta (deadrise angle) is unrealistic")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     def func(trim_angle):
-        r"""The function for which we search a root"""
-        return bow_down_moment(boatspeed, trim_angle, m, LCG, VCG, b, epsilon,
-                               beta, f, rho_water, kinematic_viscosity, gravity)[0]
+        r"""The function for which we search a root."""
+        return bow_down_moment(boatspeed,
+                               trim_angle,
+                               m,
+                               LCG,
+                               VCG,
+                               b,
+                               epsilon,
+                               beta,
+                               f,
+                               rho_water,
+                               kinematic_viscosity,
+                               gravity)[0]
 
-    tau_0M = root_scalar_with_fallback(func, x0=0., x1=45.,
-                                       bracket=(0., 45), xtol=1e-6, min_value=0.)
-
+    tau_0M = root_scalar_with_fallback(func,
+                                       x0=0.,
+                                       x1=45.,
+                                       bracket=(0., 45),
+                                       xtol=1e-6,
+                                       min_value=0.)
     if tau_0M is not None:
         zero_bow_down_moment_trim_angle = tau_0M
         print("Solver")
@@ -302,9 +335,19 @@ def savitsky_force(boatspeed: float,
                    rho_water: float = RHO_SEA_WATER_20C,
                    kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
                    gravity: float = GRAVITY_STANDARD) -> Force:
-    r"""Savitsky output formatted as a Force"""
+    r"""Savitsky output formatted as a Force."""
     _, _, _, _, _, R, _, _, _, _, _, _, _, _, _, Lcp, _ = \
-        savitsky(boatspeed, m, LCG, VCG, b, epsilon, beta, f, rho_water, kinematic_viscosity, gravity)
+        savitsky(boatspeed,
+                 m,
+                 LCG,
+                 VCG,
+                 b,
+                 epsilon,
+                 beta,
+                 f,
+                 rho_water,
+                 kinematic_viscosity,
+                 gravity)
     return Force(-R, 0., 0., Lcp, 0, 0)
 
 
@@ -320,7 +363,10 @@ def savitsky_plot_moment_vs_trim_angle(boatspeed: float,
                                        kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
                                        gravity: float = GRAVITY_STANDARD) -> None:
     r"""Plot the moments vs trim angles.
-    This procedure is mostly aimed at debugging in case of problem"""
+
+    This procedure is mostly aimed at debugging in case of problem
+
+    """
     trim_angles = np.linspace(0., 45., 1000)
     Ms = [bow_down_moment(boatspeed,
                           trim_angle,
@@ -352,9 +398,19 @@ def savitsky_report(boatspeed: float,
                     rho_water: float = RHO_SEA_WATER_20C,
                     kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
                     gravity: float = GRAVITY_STANDARD) -> None:
-    r"""Print a report to stdout"""
+    r"""Print a report to stdout."""
     zero_bow_down_moment_trim_angle, M, Mh, Mf, Ma, R, Rf, Ra, ff, fa, Cv, Cl_beta, Cl_zero, lambda_, delta_lambda, Lcp, e = \
-        savitsky(boatspeed, m, LCG, VCG, b, epsilon, beta, f, rho_water, kinematic_viscosity, gravity)
+        savitsky(boatspeed,
+                 m,
+                 LCG,
+                 VCG,
+                 b,
+                 epsilon,
+                 beta,
+                 f,
+                 rho_water,
+                 kinematic_viscosity,
+                 gravity)
     print("  Trim angle : %.3f" % zero_bow_down_moment_trim_angle)
     print("           M : %.3f" % M)
     print("          Mh : %.3f" % Mh)

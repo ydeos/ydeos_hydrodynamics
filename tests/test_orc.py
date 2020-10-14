@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-r"""Tests for the orc.py module"""
+r"""Tests for the orc.py module."""
 
 import pytest
 from ydeos_hydrodynamics.orc import hull_residuary_resistance_orc_2013
@@ -14,9 +14,13 @@ from ydeos_hydrodynamics.orc import hull_residuary_resistance_orc_2013
 
 
 def test_known_value_hull_residuary_resistance_orc_2013():
-    r"""p 75 of Principles of Yacht Design - Larsson / Eliasson
+    r"""Against known values.
+
+    p 75 of Principles of Yacht Design - Larsson / Eliasson
     611 N @ Fn= 0.35 (lwl = 10.02 -> 0.35 * sqrt(9.81 * lwl) -> 3.47 m/s
-    assertAlmostEquals(hrrorc2013.force(boatspeed = 3.47).force[0], -611.48676783980852)"""
+    assertAlmostEquals(hrrorc2013.force(boatspeed = 3.47).force[0], -611.48676783980852)
+
+    """
     assert hull_residuary_resistance_orc_2013(boatspeed=3.47,
                                               Vc=7.63,
                                               lwl=10.02,
@@ -25,7 +29,7 @@ def test_known_value_hull_residuary_resistance_orc_2013():
 
 
 def test_negative_lwl_hull_residuary_resistance_orc_2013():
-    r"""Negative lwl"""
+    r"""Negative lwl."""
     with pytest.raises(ValueError):
         hull_residuary_resistance_orc_2013(boatspeed=3.47,
                                            Vc=7.63,
@@ -35,7 +39,7 @@ def test_negative_lwl_hull_residuary_resistance_orc_2013():
 
 
 def test_resistance_sign_and_symmetry_hull_residuary_resistance_orc_2013():
-    r"""Test signs and symmetry of forces"""
+    r"""Test signs and symmetry of forces."""
     force = hull_residuary_resistance_orc_2013(boatspeed=2.,
                                                Vc=7.63,
                                                lwl=10.02,

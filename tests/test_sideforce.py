@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-r"""Tests for the sideforce.py module"""
+r"""Tests for the sideforce.py module."""
 
 import pytest
 from ydeos_hydrodynamics.sideforce import sideforce_by_element_fossati, \
@@ -23,12 +23,12 @@ spbef = sideforce_by_element_fossati(boatspeed=4.,
 
 
 def test_known_value_sideforce_by_element_fossati():
-    r"""No know data"""
+    r"""No know data."""
     assert True
 
 
 def test_negative_projected_area_sideforce_by_element_fossati():
-    r"""Negative projected area"""
+    r"""Negative projected area."""
     with pytest.raises(ValueError):
         sideforce_by_element_fossati(boatspeed=4.,
                                      heel_angle=0.,
@@ -44,7 +44,7 @@ def test_negative_projected_area_sideforce_by_element_fossati():
 
 
 def test_sign_and_symmetry_sideforce_by_element_fossati():
-    r"""Test signs and symmetry"""
+    r"""Test signs and symmetry."""
     force = sideforce_by_element_fossati(boatspeed=4.,
                                          heel_angle=0.,
                                          leeway_angle=4.,
@@ -84,7 +84,7 @@ def test_sign_and_symmetry_sideforce_by_element_fossati():
 
 
 def test_heel_angle_resistance_sideforce_by_element_fossati():
-    r"""x component of force with opposite heel angles should be equal"""
+    r"""x component of force with opposite heel angles should be equal."""
     force = sideforce_by_element_fossati(boatspeed=4.,
                                          heel_angle=20.,
                                          leeway_angle=4.,
@@ -112,7 +112,7 @@ def test_heel_angle_resistance_sideforce_by_element_fossati():
 
 
 def test_heel_angle_sideforce_sideforce_by_element_fossati():
-    r"""Symmetric situations, mirrored by XZ plane"""
+    r"""Symmetric situations, mirrored by XZ plane."""
     force = sideforce_by_element_fossati(boatspeed=4.,
                                          heel_angle=20.,
                                          leeway_angle=4.,
@@ -140,7 +140,7 @@ def test_heel_angle_sideforce_sideforce_by_element_fossati():
 
 
 def test_rudder_angle_sideforce_by_element_fossati():
-    r"""Opposite rudder angles"""
+    r"""Opposite rudder angles."""
     force = sideforce_by_element_fossati(boatspeed=4.,
                                          heel_angle=0.,
                                          leeway_angle=0.,
@@ -169,7 +169,7 @@ def test_rudder_angle_sideforce_by_element_fossati():
 
 
 def test_coe_position_sideforce_by_element_fossati():
-    r"""Centre of effort position tests"""
+    r"""Centre of effort position tests."""
     force = sideforce_by_element_fossati(boatspeed=4.,
                                          heel_angle=20.,
                                          leeway_angle=5.,
@@ -202,7 +202,7 @@ def test_coe_position_sideforce_by_element_fossati():
 
 
 def test_speed_multiplier_sideforce_by_element_fossati():
-    r"""Different speed multipliers"""
+    r"""Different speed multipliers."""
     force = sideforce_by_element_fossati(boatspeed=4.,
                                          heel_angle=20.,
                                          leeway_angle=5.,
@@ -287,12 +287,12 @@ spkv09_swept_minus20 = \
 
 
 def test_known_value_sideforce_production_keuning_verwerft():
-    r"""No know data"""
+    r"""No know data."""
     assert True
 
 
 def test_negative_bwl_sideforce_production_keuning_verwerft():
-    r"""Negative lwl"""
+    r"""Negative lwl."""
     with pytest.raises(ValueError):
         sideforce_production_keuning_verwerft(boatspeed=4.,
                                               heel_angle=0.,
@@ -311,7 +311,7 @@ def test_negative_bwl_sideforce_production_keuning_verwerft():
 
 
 def test_sign_and_symmetry_sideforce_production_keuning_verwerft():
-    r"""Test signs and symmetry"""
+    r"""Test signs and symmetry."""
     force = \
         sideforce_production_keuning_verwerft(boatspeed=4.,
                                               heel_angle=0.,
@@ -369,7 +369,7 @@ def test_sign_and_symmetry_sideforce_production_keuning_verwerft():
 
 
 def test_heel_angle_resistance_sideforce_production_keuning_verwerft():
-    r"""Test x force component with opposite heel angles"""
+    r"""Test x force component with opposite heel angles."""
     force = \
         sideforce_production_keuning_verwerft(boatspeed=4.,
                                               heel_angle=20.,
@@ -405,7 +405,7 @@ def test_heel_angle_resistance_sideforce_production_keuning_verwerft():
 
 
 def test_heel_angle_sideforce_sideforce_production_keuning_verwerft():
-    r"""Test y force component with opposite heel angles"""
+    r"""Test y force component with opposite heel angles."""
     force = \
         sideforce_production_keuning_verwerft(boatspeed=4.,
                                               heel_angle=20.,
@@ -442,7 +442,7 @@ def test_heel_angle_sideforce_sideforce_production_keuning_verwerft():
 
 
 def test_rudder_angle_sideforce_production_keuning_verwerft():
-    r"""Opposite rudder angles"""
+    r"""Opposite rudder angles."""
     force = \
         sideforce_production_keuning_verwerft(boatspeed=4.,
                                               heel_angle=0.,
@@ -479,7 +479,7 @@ def test_rudder_angle_sideforce_production_keuning_verwerft():
 
 
 def test_sweep_symmetry_sideforce_production_keuning_verwerft():
-    r"""Opposite keel sweep angles"""
+    r"""Opposite keel sweep angles."""
     force = \
         sideforce_production_keuning_verwerft(boatspeed=4.,
                                               heel_angle=20.,
@@ -522,7 +522,7 @@ def test_sweep_symmetry_sideforce_production_keuning_verwerft():
 
 
 def test_coe_position_sideforce_production_keuning_verwerft():
-    r"""Centre of effort position tests"""
+    r"""Centre of effort position tests."""
     sof_1 = SystemOfForces()
     sof_2 = SystemOfForces()
 
@@ -543,7 +543,7 @@ def test_coe_position_sideforce_production_keuning_verwerft():
                                               rudder_coe=(0.0536, 0., -0.11495),
                                               keel_sweep_back_angle=20.)
     for f in force:
-        sof_1.add_force(Force([f.fx, f.fy, f.fz], [f.px, f.py, f.pz]))
+        sof_1.add_force(Force((f.fx, f.fy, f.fz), (f.px, f.py, f.pz)))
 
     assert sof_1.moment[2] < 0
 
@@ -569,7 +569,7 @@ def test_coe_position_sideforce_production_keuning_verwerft():
                                               rudder_coe=(0.0536, 0., -0.11495),
                                               keel_sweep_back_angle=20.)
     for f in force:
-        sof_2.add_force(Force([f.fx, f.fy, f.fz], [f.px, f.py, f.pz]))
+        sof_2.add_force(Force((f.fx, f.fy, f.fz), (f.px, f.py, f.pz)))
 
     # assert force.position[0] > 0.0536
     # assert force.position[0] < 0.460

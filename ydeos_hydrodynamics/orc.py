@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""ORC resistance estimates"""
+r"""ORC resistance estimates."""
 
 from typing import List, Union, Tuple
 from functools import partial
@@ -24,11 +24,15 @@ ORC2013_BTR_MAX = 9.0
 ORC2013_LVR_MIN = 3.0
 ORC2013_LVR_MAX = 9.0
 
-check_btr = partial(check_domain, domain=ORC_2013, quantity="BTR", lower=ORC2013_BTR_MIN, upper=ORC2013_BTR_MAX)
-check_lvr = partial(check_domain, domain=ORC_2013, quantity="LVR", lower=ORC2013_LVR_MIN, upper=ORC2013_LVR_MAX)
+check_btr = partial(check_domain, domain=ORC_2013, quantity="BTR",
+                    lower=ORC2013_BTR_MIN, upper=ORC2013_BTR_MAX)
+check_lvr = partial(check_domain, domain=ORC_2013, quantity="LVR",
+                    lower=ORC2013_LVR_MIN, upper=ORC2013_LVR_MAX)
 
 
-def create_interpolation(Xs: List[float], Ys: List[float], Zs: List[float]) -> SmoothBivariateSpline:
+def create_interpolation(Xs: List[float],
+                         Ys: List[float],
+                         Zs: List[float]) -> SmoothBivariateSpline:
     r"""Create an interpolation callable. z = f(x, y).
 
     Xs : list of x axis values (size m)
@@ -49,7 +53,7 @@ def hull_residuary_resistance_orc_2013(boatspeed: float,
                                        Tc: float,
                                        coe: Union[Tuple[float, float, float], None] = None,
                                        rho_water: float = RHO_SEA_WATER_20C) -> Force:
-    """ The hull upright residuary resistance (N), according to the ORC 2013 formula
+    """ Hull upright residuary resistance (N), ORC 2013 formula.
 
     boatspeed : boat speed [m/s]
     Vc : Canoe body volume of displaced water [m**3] , must be > 0.
@@ -58,7 +62,8 @@ def hull_residuary_resistance_orc_2013(boatspeed: float,
     Tc : Canoe body draft [m], must be >= 0
     coe : tuple of 3 floats, optional (default [lwl / 2, 0, -Tc / 3])
         Represents the x, y, z coordinates of the centre of effort.
-        For residuary resistance, the surfacic barycentre of the underwater hull is an acceptable estimate.
+        For residuary resistance, the surfacic barycentre of the underwater
+        hull is an acceptable estimate.
         x=lwl / 2 , y = 0., z = -Tc/3 is another acceptable estimate.
     rho_water : Water density [kg/m**3], must be >= 0.
 
@@ -80,7 +85,8 @@ def hull_residuary_resistance_orc_2013(boatspeed: float,
     if Tc <= 0:
         raise ValueError("Tc should be strictly positive")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     BTR = bwl / Tc
     LVR = lwl / Vc ** (1. / 3)
@@ -91,8 +97,10 @@ def hull_residuary_resistance_orc_2013(boatspeed: float,
 
     coe = (lwl / 2., 0., -Tc / 3.) if coe is None else coe
 
-    interp = _get_interpolator_hull_residuary_resistance_orc_2013(Vc, BTR, LVR, rho_water)
-
+    interp = _get_interpolator_hull_residuary_resistance_orc_2013(Vc,
+                                                                  BTR,
+                                                                  LVR,
+                                                                  rho_water)
     boatspeed_sign = boatspeed / abs(boatspeed) if boatspeed != 0. else 0.
     froude = froude_number(speed=boatspeed, lwl=lwl)
     if froude <= 0.7:
@@ -104,7 +112,12 @@ def hull_residuary_resistance_orc_2013(boatspeed: float,
                                 (froude - 0.7) *
                                 (at_0_700 - at_0_675) / 0.025)
 
-    return Force(-residuary_resistance * boatspeed_sign, 0., 0., coe[0], coe[1], coe[2])
+    return Force(-residuary_resistance * boatspeed_sign,
+                 0.,
+                 0.,
+                 coe[0],
+                 coe[1],
+                 coe[2])
 
 
 @memoize

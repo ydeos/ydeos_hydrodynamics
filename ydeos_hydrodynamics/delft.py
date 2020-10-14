@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Delft resistance estimates"""
+r"""Delft resistance estimates."""
 
 from typing import Tuple, Union
 from math import radians, sqrt
@@ -94,7 +94,7 @@ def keel_residuary_delta_heeled_ks(boatspeed: float,
                                    bwl: float,
                                    coe: Union[Tuple[float, float, float], None] = None,
                                    rho_water: float = RHO_SEA_WATER_20C) -> Force:
-    """ Calculates the keel residuary resistance [N] delta at a given heel angle
+    """Keel residuary resistance [N] delta at a given heel angle.
 
     KS stands for Keuning Sonnenberg.
     Keuning and Sonnenberg wrote "Approximation of the Hydrodynamic Forces
@@ -116,7 +116,8 @@ def keel_residuary_delta_heeled_ks(boatspeed: float,
         x=lwl / 2 , y = 0., z = -Tc/3 is another acceptable estimate.
     rho_water :  Water density [kg/m**3], must be >= 0 (default RHO_SEA_WATER)
 
-    Returns a Force object, representing the residuary resistance [N] delta of the keel at any heel angle.
+    Returns a Force object, representing the residuary resistance [N] delta of
+    the keel at any heel angle.
 
     """
     if Vc <= 0:
@@ -132,7 +133,8 @@ def keel_residuary_delta_heeled_ks(boatspeed: float,
     if bwl <= 0:
         raise ValueError("bwl should be strictly positive")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be "
+                         f"between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     # DSYHS checks
     # midship area coefficient cannot be checked here
@@ -189,7 +191,7 @@ def keel_residuary_ks(boatspeed: float,
                       Zcbk: float,
                       coe: Union[Tuple[float, float, float], None] = None,
                       rho_water: float = RHO_SEA_WATER_20C) -> Force:
-    """Calculate the residuary resistance [N] of the keel at 0° heel.
+    """Residuary resistance [N] of the keel at 0° heel.
 
     KS stands for Keuning Sonnenberg.
     Keuning and Sonnenberg wrote "Approximation of the Hydrodynamic Forces
@@ -204,14 +206,17 @@ def keel_residuary_ks(boatspeed: float,
     T : Total draft [m], must be >= 0
     lwl : Length at Waterline [m] , must be > 0.
     bwl : Beam at Waterline [m] , must be > 0.
-    Zcbk : Distance to the center of buoyancy of the keel [m]n from top of keel. Must be > 0.
+    Zcbk : Distance to the center of buoyancy of the keel [m]n from top of keel.
+           Must be > 0.
     coe : tuple of 3 floats, optional (default (lwl / 2, 0, -Tc/3)).
         Represents the x, y, z coordinates of the centre of effort.
-        For residuary resistance, the surfacic barycentre of the underwater hull is an acceptable estimate.
+        For residuary resistance, the surfacic barycentre of the underwater hull
+        is an acceptable estimate.
         x=lwl / 2 , y = 0., z = -Tc/3 is another acceptable estimate.
     rho_water : Water density [kg/m**3], must be >= 0 (default RHO_SEA_WATER)
 
-    Returns a Force object, representing the residuary resistance [N] of the keel at 0° heel.
+    Returns a Force object, representing the residuary resistance [N]
+    of the keel at 0° heel.
 
     """
     if Vc <= 0:
@@ -270,7 +275,8 @@ def due_to_heel(boatspeed: float,
                 T: float,
                 coe: Union[Tuple[float, float, float], None] = None,
                 rho_water: float = RHO_SEA_WATER_20C) -> Force:
-    """ Calculate the drag [N] due to heel.
+    """Drag [N] due to heel.
+
     LA stands for Larsson, one of the authors of Principles of Yacht Design.
     The calculation is described on page 83 of the book Principles of Yacht Design
 
@@ -283,7 +289,8 @@ def due_to_heel(boatspeed: float,
     T : Total draft [m], must be >= 0
     coe : tuple of 3 floats, optional (default [lwl / 2, 0, -Tc/3]).
         Represents the x, y, z coordinates of the centre of effort.
-        For residuary resistance, the surfacic barycentre of the underwater hull is an acceptable estimate.
+        For residuary resistance, the surfacic barycentre of the underwater hull
+        is an acceptable estimate.
         x=lwl / 2 , y = 0., z = -Tc/3 is another acceptable estimate.
     rho_water : Water density [kg/m**3], must be >= 0
 
@@ -305,7 +312,8 @@ def due_to_heel(boatspeed: float,
     if T <= 0:
         raise ValueError("T should be strictly positive")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     if coe is None:
         coe = (lwl / 2., 0., -Tc / 3.)
@@ -319,7 +327,12 @@ def due_to_heel(boatspeed: float,
 
     heel_resistance = (0.5 * rho_water * boatspeed ** 2 * Sc * Ch * froude ** 2 * radians(abs(heel_angle)))
 
-    return Force(-heel_resistance * boatspeed_sign, 0., 0., coe[0], coe[1], coe[2])
+    return Force(-heel_resistance * boatspeed_sign,
+                 0.,
+                 0.,
+                 coe[0],
+                 coe[1],
+                 coe[2])
 
 
 @memoize
@@ -349,7 +362,10 @@ def _get_hull_residuary_delta_heeled_ks_interpolator(Vc: float,
                                        i] * LCB ** 2)
                                   for i in range(len(froude_numbers_table))]
 
-    return interp1d(froude_numbers_table, delta_rh_at_20_degree_heel, kind='slinear', bounds_error=True)
+    return interp1d(froude_numbers_table,
+                    delta_rh_at_20_degree_heel,
+                    kind='slinear',
+                    bounds_error=True)
 
 
 def hull_residuary_delta_heeled_ks(boatspeed: float,
@@ -361,7 +377,8 @@ def hull_residuary_delta_heeled_ks(boatspeed: float,
                                    lcb_fraction: float = 0.53,
                                    coe: Union[Tuple[float, float, float], None] = None,
                                    rho_water: float = RHO_SEA_WATER_20C) -> Force:
-    """Calculate the hull residuary resistance [N] delta at a given heel angle.
+    """Hull residuary resistance [N] delta at a given heel angle.
+
     KS stands for Keuning Sonnenberg.
     Keuning and Sonnenberg wrote "Approximation of the Hydrodynamic Forces
     on a Sailing Yacht based on the 'Delft Systematic Yacht Hull Series'"
@@ -396,7 +413,8 @@ def hull_residuary_delta_heeled_ks(boatspeed: float,
     if not 0. < lcb_fraction < 1.:
         raise ValueError("lcb_fraction should be between 0 and 1")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     # DSYHS checks
     # midship area coefficient cannot be checked here
@@ -407,7 +425,12 @@ def hull_residuary_delta_heeled_ks(boatspeed: float,
 
     coe = (lwl / 2., 0., -Tc / 3.) if coe is None else coe
 
-    interp = _get_hull_residuary_delta_heeled_ks_interpolator(Vc, lwl, bwl, Tc, lcb_fraction, rho_water)
+    interp = _get_hull_residuary_delta_heeled_ks_interpolator(Vc,
+                                                              lwl,
+                                                              bwl,
+                                                              Tc,
+                                                              lcb_fraction,
+                                                              rho_water)
 
     boatspeed_sign = boatspeed / abs(boatspeed) if boatspeed != 0. else 0.
 
@@ -426,7 +449,12 @@ def hull_residuary_delta_heeled_ks(boatspeed: float,
         rrh_delta_at_heel_angle = (rrh_delta_at_20_deg_heel * 6.0 *
                                    (radians(abs(heel_angle))) ** 1.7)
 
-    return Force(-rrh_delta_at_heel_angle * boatspeed_sign, 0., 0., coe[0], coe[1], coe[2])
+    return Force(-rrh_delta_at_heel_angle * boatspeed_sign,
+                 0.,
+                 0.,
+                 coe[0],
+                 coe[1],
+                 coe[2])
 
 
 @memoize
@@ -473,8 +501,9 @@ def hull_residuary_resistance_2008(boatspeed: float,
                                    Cp: float = 0.56,
                                    coe: Union[Tuple[float, float, float], None] = None,
                                    rho_water: float = RHO_SEA_WATER_20C) -> Force:
-    """Calculate the residuary resistance [N] on the hull
-    (source: p24 of Fossati's Aero-hydrodynamics ...)
+    """Calculate the residuary resistance [N] on the hull.
+
+    Source: p24 of Fossati's Aero-hydrodynamics ...
 
     boatspeed : boat speed [m/s]
     Vc : Canoe body volume of displaced water [m**3], must be > 0.
@@ -483,13 +512,17 @@ def hull_residuary_resistance_2008(boatspeed: float,
     Aw : Waterplane area [m**2] , must be > 0.
     Cm : Midship section coefficient, must be >= 0
     lcb_fraction : Longitudinal position of Center of Buoyancy from bow.
-        It is in fraction format e.g. 0.560. Must be > 0 and < 1. The DSYHS range is 0.500 to 0.582.
+        It is in fraction format e.g. 0.560. Must be > 0 and < 1.
+        The DSYHS range is 0.500 to 0.582.
     lcf_fraction : Longitudinal position of Center of Flotation from bow.
-        It is in fraction format e.g. 0.590. Must be > 0 and < 1. The DSYHS range is 0.518 to 0.595.
-    Cp : Prismatic Coefficient, Must be > 0 and < 1. The DSYHS range is 0.520 to 0.600.
+        It is in fraction format e.g. 0.590. Must be > 0 and < 1.
+        The DSYHS range is 0.518 to 0.595.
+    Cp : Prismatic Coefficient, Must be > 0 and < 1.
+         The DSYHS range is 0.520 to 0.600.
     coe : tuple of 3 floats, optional (default [lwl / 2, 0, 0])
         Represents the x, y, z coordinates of the centre of effort.
-        For residuary resistance, the surfacic barycentre of the underwater hull is an acceptable estimate.
+        For residuary resistance, the surfacic barycentre of the underwater hull
+        is an acceptable estimate.
         x=lwl / 2 , y = 0., z = -Tc/3 is another acceptable estimate.
     rho_water : Water density [kg/m**3], must be >= 0.
 
@@ -517,7 +550,8 @@ def hull_residuary_resistance_2008(boatspeed: float,
     if not 0. < Cp < 1.:
         raise ValueError("Cp should be between 0 and 1")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     # DSYHS checks
     # bwl / Tc cannot be checked here
@@ -546,7 +580,12 @@ def hull_residuary_resistance_2008(boatspeed: float,
         at_0_75 = interp(0.75)
         residuary_resistance = at_0_75 + (froude - 0.75) * (at_0_75 - at_0_74) / 0.01
 
-    return Force(-residuary_resistance * boatspeed_sign, 0., 0., coe[0], coe[1], coe[2])
+    return Force(-residuary_resistance * boatspeed_sign,
+                 0.,
+                 0.,
+                 coe[0],
+                 coe[1],
+                 coe[2])
 
 
 # **** CHECKLIST ****
@@ -583,7 +622,10 @@ def _get_hull_residuary_resistance_ks_series4_interpolator(Vc: float,
                + a7[i] * (lcb_fraction ** 2) + a8[i] * (Cp ** 2)) * ((Vc ** 0.3333333333) / lwl))
            for i in range(len(froude_numbers_table))]
 
-    return interp1d(froude_numbers_table, Rrh, kind='slinear', bounds_error=True)
+    return interp1d(froude_numbers_table,
+                    Rrh,
+                    kind='slinear',
+                    bounds_error=True)
 
 
 def hull_residuary_resistance_ks_series4(boatspeed: float,
@@ -597,7 +639,8 @@ def hull_residuary_resistance_ks_series4(boatspeed: float,
                                          Cp: float = 0.56,
                                          coe: Union[Tuple[float, float, float], None] = None,
                                          rho_water: float = RHO_SEA_WATER_20C) -> Force:
-    """Calculate the residuary resistance [N] on the hull, according to the DSYHS Series 4 regression
+    """Residuary resistance [N] on the hull, DSYHS Series 4 regression.
+
     KS stands for Keuning Sonnenberg.
     Keuning and Sonnenberg wrote "Approximation of the Hydrodynamic Forces
     on a Sailing Yacht based on the 'Delft Systematic Yacht Hull Series'"
@@ -610,13 +653,17 @@ def hull_residuary_resistance_ks_series4(boatspeed: float,
     Aw : Waterplane area [m**2] , must be > 0.
     Sc : WSAc - Canoe body Wetted Surface Area [m**2], must be >= 0
     lcb_fraction : Longitudinal position of Center of Buoyancy from bow.
-        It is in fraction format e.g. 0.560. Must be > 0 and < 1. The DSYHS range is 0.500 to 0.582.
+        It is in fraction format e.g. 0.560. Must be > 0 and < 1.
+        The DSYHS range is 0.500 to 0.582.
     lcf_fraction : Longitudinal position of Center of Flotation from bow.
-        It is in fraction format e.g. 0.590. Must be > 0 and < 1. The DSYHS range is 0.518 to 0.595.
-    Cp : Prismatic Coefficient, Must be > 0 and < 1. The DSYHS range is 0.520 to 0.600.
+        It is in fraction format e.g. 0.590. Must be > 0 and < 1.
+        The DSYHS range is 0.518 to 0.595.
+    Cp : Prismatic Coefficient, Must be > 0 and < 1.
+    The DSYHS range is 0.520 to 0.600.
     coe : tuple of 3 floats, optional (default [lwl / 2, 0, 0])
         Represents the x, y, z coordinates of the centre of effort.
-        For residuary resistance, the surfacic barycentre of the underwater hull is an acceptable estimate.
+        For residuary resistance, the surfacic barycentre of the underwater hull
+        is an acceptable estimate.
         x=lwl / 2 , y = 0., z = -Tc/3 is another acceptable estimate.
     rho_water : Water density [kg/m**3], must be >= 0.
 
@@ -648,7 +695,8 @@ def hull_residuary_resistance_ks_series4(boatspeed: float,
     if not 0. < Cp < 1.:
         raise ValueError("Cp should be between 0 and 1")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     # DSYHS checks
     # bwl / Tc cannot be checked here
@@ -676,7 +724,12 @@ def hull_residuary_resistance_ks_series4(boatspeed: float,
         at_0_60 = interp(0.60)
         residuary_resistance = at_0_60 + (froude - 0.6) * (at_0_60 - at_0_59) / 0.01
 
-    return Force(-residuary_resistance * boatspeed_sign, 0., 0., coe[0], coe[1], coe[2])
+    return Force(-residuary_resistance * boatspeed_sign,
+                 0.,
+                 0.,
+                 coe[0],
+                 coe[1],
+                 coe[2])
 
 
 @memoize
@@ -747,7 +800,10 @@ def _get_hull_residuary_resistance_la_series3_interpolator(Vc: float,
                       + a4[i] * (lwl / bwl) ** 2.0
                       + a5[i] * (lwl / bwl) * ((Aw / Vc ** (2.0 / 3.0)) ** 3.0))
 
-    return interp1d(froude_numbers_table, Rrh, kind='slinear', bounds_error=True)
+    return interp1d(froude_numbers_table,
+                    Rrh,
+                    kind='slinear',
+                    bounds_error=True)
 
 
 def hull_residuary_resistance_la_series3(boatspeed: float,
@@ -760,7 +816,7 @@ def hull_residuary_resistance_la_series3(boatspeed: float,
                                          Cp: float = 0.56,
                                          coe: Union[Tuple[float, float, float], None] = None,
                                          rho_water: float = RHO_SEA_WATER_20C) -> Force:
-    """The hull upright residuary resistance (N) according to the DSYHS Series 3 regression
+    """Hull upright residuary resistance (N), DSYHS Series 3 regression.
 
     Calculates the residuary resistance [N] on the hull.
     LA stands for Larsson, one of the authors of Principles of Yacht Design.
@@ -776,7 +832,8 @@ def hull_residuary_resistance_la_series3(boatspeed: float,
     lcb_fraction : Longitudinal position of Center of Buoyancy from bow.
         It is in fraction format: e.g. 0.560. Must be > 0 and < 1.
         The DSYHS range is 0.500 to 0.582.
-    Cp : Prismatic Coefficient. Must be > 0 and < 1. The DSYHS range is 0.520 to 0.600.
+    Cp : Prismatic Coefficient. Must be > 0 and < 1.
+    The DSYHS range is 0.520 to 0.600.
     coe : tuple of 3 floats, optional (default [lwl / 2, 0, -Tc / 3]).
         Represents the x, y, z coordinates of the centre of effort.
         For residuary resistance, the surfacic barycentre of the underwater
@@ -784,7 +841,8 @@ def hull_residuary_resistance_la_series3(boatspeed: float,
         x=lwl / 2 , y = 0., z = -Tc/3 is another acceptable estimate.
     rho_water : Water density [kg/m**3], must be >= 0.
 
-    Returns a Force object, representing the residuary resistance [N] on the hull.
+    Returns a Force object, representing the residuary resistance [N]
+    on the hull.
 
     References
     ----------
@@ -809,7 +867,8 @@ def hull_residuary_resistance_la_series3(boatspeed: float,
     if not 0. < Cp < 1.:
         raise ValueError("Cp should be between 0 and 1")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     # DSYHS checks (cf page 74 of principles of yacht design
     check_lwl_to_bwl_s3(value=lwl / bwl)
@@ -834,4 +893,9 @@ def hull_residuary_resistance_la_series3(boatspeed: float,
                                 (froude - 0.75) *
                                 (at_0_75 - at_0_74) / 0.01)
 
-    return Force(-residuary_resistance * boatspeed_sign, 0., 0., coe[0], coe[1], coe[2])
+    return Force(-residuary_resistance * boatspeed_sign,
+                 0.,
+                 0.,
+                 coe[0],
+                 coe[1],
+                 coe[2])

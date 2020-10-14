@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-r"""Holtrop example"""
+r"""Holtrop example."""
 
 from ydeos_hydrodynamics.froude import froude_number
 from ydeos_hydrodynamics.holtrop_mennen import holtrop_mennen

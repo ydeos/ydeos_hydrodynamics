@@ -1,9 +1,9 @@
 # coding: utf-8
 
-r"""ydeos_hydrodynamics __init__"""
+r"""ydeos_hydrodynamics __init__.py."""
 
 
-__name__ = "ydeos_hydrodynamics"
+__project_name__ = "ydeos_hydrodynamics"
 __description__ = "Hydrodynamics computations"
 
 __version__ = "2020.10.10"

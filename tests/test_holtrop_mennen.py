@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-r"""Tests for the holtrop_mennen.py module"""
+r"""Tests for the holtrop_mennen.py module."""
 
 from ydeos_hydrodynamics.constants import KINEMATIC_VISCOSITY_WATER_20C
 from ydeos_hydrodynamics.froude import froude_number
@@ -11,8 +11,11 @@ from ydeos_hydrodynamics.holtrop_mennen import holtrop_friction, holtrop_wave, \
 
 
 def test_holtrop():
-    r"""Test values from the last page of
+    r"""Against known values.
+
+    Test values from the last page of
     'An Approximate Power Prediction Method - Holtrop Mennen - 1982.pdf'
+
     """
     L = 205.0  # Length on waterline
     LPP = 200.0
@@ -46,7 +49,15 @@ def test_holtrop():
     assert 0.2868 - 1e-5 <= froude_number(boatspeed, L, g) <= 0.2868 + 1e-5
     assert 81.385 <= _holtrop_Lr(L, Cp, lcb_wl) <= 81.385 + 3e-3
 
-    r_friction, k1, c12, c13, Cf = holtrop_friction(boatspeed, L, B, T, Cp, lcb_wl, c_stern_code, S, rho_water,
+    r_friction, k1, c12, c13, Cf = holtrop_friction(boatspeed,
+                                                    L,
+                                                    B,
+                                                    T,
+                                                    Cp,
+                                                    lcb_wl,
+                                                    c_stern_code,
+                                                    S,
+                                                    rho_water,
                                                     kinematic_viscosity)
     assert round(c12, 4) == 0.5102
     assert c13 == 1.03
@@ -54,8 +65,21 @@ def test_holtrop():
     assert round(k1, 3) == 0.156
     assert round(r_friction) == 852566  # 869630 in publi
 
-    r_wave, c1, c5, c7, c15, m1, m2, lambda_ = holtrop_wave(boatspeed, Vc, L, B, T, Cp, lcb_wl, At, Cm, Cwp, Abt, h_b,
-                                                            Tf, rho_water, g)
+    r_wave, c1, c5, c7, c15, m1, m2, lambda_ = holtrop_wave(boatspeed,
+                                                            Vc,
+                                                            L,
+                                                            B,
+                                                            T,
+                                                            Cp,
+                                                            lcb_wl,
+                                                            At,
+                                                            Cm,
+                                                            Cwp,
+                                                            Abt,
+                                                            h_b,
+                                                            Tf,
+                                                            rho_water,
+                                                            g)
     assert round(c1, 3) == 1.398
     assert round(c5, 4) == 0.9592
     assert round(c7, 4) == 0.1561
@@ -82,9 +106,16 @@ def test_holtrop():
     r_a, c4, Ca = holtrop_a(boatspeed, L, B, T, S, Cb, Abt, h_b, Tf, rho_water)
     assert round(c4, 2) == 0.04
     assert round(Ca, 6) == 0.000352
-    assert round(r_a) == 220572  # 221980 in publi but Cb not provided, so this is ok
+
+    # 221980 in publication but Cb not provided, so this is ok
+    assert round(r_a) == 220572
 
     # TODO : k2 was tweaked to pass the test
     # Is there any info in the publi anyway?
-    r_app = holtrop_appendages(boatspeed, (Sapp,), (D,), (0.0035,), rho_water, kinematic_viscosity)
+    r_app = holtrop_appendages(boatspeed,
+                               (Sapp,),
+                               (D,),
+                               (0.0035,),
+                               rho_water,
+                               kinematic_viscosity)
     assert round(r_app) == 8830

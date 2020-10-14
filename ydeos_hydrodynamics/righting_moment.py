@@ -1,6 +1,6 @@
 # coding: utf-8
 
-r"""Righting moment estimates"""
+r"""Righting moment estimates."""
 
 from typing import Tuple
 from math import sin, radians
@@ -18,7 +18,9 @@ def rm_estimate_gerritsma(boatspeed: float,
                           Tc: float,
                           Gdwl: float,
                           rho_water: float = RHO_SEA_WATER_20C) -> Tuple[Force, Force]:
-    """Estimate the righting moment [N.m] from hull shape parameters
+    """Heeling righting moment estimate, Delft.
+
+    Estimate the righting moment [N.m] from hull shape parameters
     according to the logic published in 1993 by Gerritsma
 
     boatspeed : boat speed [m/s]
@@ -30,7 +32,8 @@ def rm_estimate_gerritsma(boatspeed: float,
     Tc : The canoe body draft [m], must be > 0
     Gdwl : The vertical centre of gravity position relative to datum waterline
         (negative if below waterline)
-    rho_water : Water density [kg/m**3], must be between RHO_WATER_MIN and RHO_WATER_MAX.
+    rho_water : Water density [kg/m**3],
+                must be between RHO_WATER_MIN and RHO_WATER_MAX.
 
     Returns a list of 2 Force objects, of equal magnitude but of vertical
     and opposite directions representing the righting moment.
@@ -54,7 +57,8 @@ def rm_estimate_gerritsma(boatspeed: float,
     if Tc <= 0:
         raise ValueError("Tc should be strictly positive")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     D2 = -0.0406 + 0.0109 * (bwl / Tc) - 0.00105 * (bwl / Tc) ** 2
     D3 = 0.0636 - 0.0196 * (bwl / Tc)
@@ -86,8 +90,10 @@ def rm_estimate_gerritsma(boatspeed: float,
     #                   by the Z component of the force)
     # Z: 0
 
-    righting_force = Force(0., 0., -rm_estimate * heel_sign, lwl / 2., -1., 0.)
-    compensating_force = Force(0., 0., rm_estimate * heel_sign, lwl / 2., 0, 0.,)
+    righting_force = Force(0., 0., -rm_estimate * heel_sign,
+                           lwl / 2., -1., 0.)
+    compensating_force = Force(0., 0., rm_estimate * heel_sign,
+                               lwl / 2., 0, 0.,)
 
     return righting_force, compensating_force
 
@@ -98,12 +104,16 @@ def rm_orc2013(heel_angle: float,
                bwl: float,
                Tc: float,
                rho_water: float = RHO_SEA_WATER_20C) -> Tuple[Force, Force]:
-    """Righting moment estimate, inspired by the formulation at page 30 of
+    """Heeling righting moment estimate, ORC.
+
+    Righting moment estimate, inspired by the formulation at page 30 of
     the 'ORC VPP Documentation 2013, updated july 4th'
 
     DSPM    Displacement in measurement trim [kg]
-    IMSL    Effective sailing length [m] weighted average of lengths for 3 conditions of flotation
-    BTR     Beam Depth Ratio [] - effective beam divided by the effective hull depth
+    IMSL    Effective sailing length [m] weighted average of lengths
+            for 3 conditions of flotation
+    BTR     Beam Depth Ratio [] - effective beam divided by
+            the effective hull depth
     VOL     Canoe body volume [m**3]
     SA      Sail area upwind [m**2]
     HA      heeling arm [N*m], defined as :
@@ -164,8 +174,10 @@ def trm_estimate(trim_angle: float,
                  Tc: float,
                  Gdwl: float,
                  rho_water: float = RHO_SEA_WATER_20C) -> Tuple[Force, Force]:
-    """Estimate the righting moment [N.m] from hull shape parameters according to the logic
-    published in 1993 by Gerritsma
+    """Trim righting moment estimate.
+
+    Estimate the righting moment [N.m] from hull shape parameters
+    according to the logic published in 1993 by Gerritsma
 
     trim_angle : trim angle [degrees].
         Negative is bow down, Positive is bow up
@@ -175,10 +187,11 @@ def trm_estimate(trim_angle: float,
     Tc : The canoe body draft [m], must be > 0
     Gdwl : The vertical centre of gravity position relative to datum waterline
         (negative if below waterline)
-    rho_water : Water density [kg/m**3], must be between RHO_WATER_MIN and RHO_WATER_MAX.
+    rho_water : Water density [kg/m**3],
+                must be between RHO_WATER_MIN and RHO_WATER_MAX.
 
-    Returns a list of 2 Force objects, of equal magnitude but of vertical and opposite directions
-    representing the righting moment.
+    Returns a list of 2 Force objects, of equal magnitude but of vertical
+    and opposite directions representing the righting moment.
 
     References
     ----------
@@ -196,7 +209,8 @@ def trm_estimate(trim_angle: float,
     if Tc <= 0:
         raise ValueError("Tc should be strictly positive")
     if not RHO_WATER_MIN < rho_water < RHO_WATER_MAX:
-        raise ValueError(f"rho_water should be between {RHO_WATER_MIN} and {RHO_WATER_MAX}")
+        raise ValueError(f"rho_water should be between "
+                         f"{RHO_WATER_MIN} and {RHO_WATER_MAX}")
 
     D3 = 0.0636 - 0.0196 * (lwl / Tc)
 
@@ -208,16 +222,10 @@ def trm_estimate(trim_angle: float,
                             sin(radians(abs(trim_angle))) + bwl * D3 * (radians(abs(trim_angle))) ** 2))
 
     trm_estimate_ = static_trm_estimate
-    # return ForceAndMoment([0.,0.,0.],
-    #                       [-rm_estimate * heel_sign,0.,0.],[0.,0.,0.])
 
-    # Approximation of the point of application of the righting force:
-    # X: 1/2 of lwl
-    # Y: - UNIT LENGTH (gives the right moment when multiplied
-    #                   by the Z component of the force)
-    # Z: 0
-
-    trim_righting_force = Force(0., 0., trm_estimate_ * trim_sign, lwl / 2. - 1., 0., 0.)
-    compensating_force = Force(0., 0., -trm_estimate_ * trim_sign, lwl / 2., 0, 0.)
+    trim_righting_force = Force(0., 0., trm_estimate_ * trim_sign,
+                                lwl / 2. - 1., 0., 0.)
+    compensating_force = Force(0., 0., -trm_estimate_ * trim_sign,
+                               lwl / 2., 0, 0.)
 
     return trim_righting_force, compensating_force
