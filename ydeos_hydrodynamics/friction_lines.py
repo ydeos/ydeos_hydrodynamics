@@ -50,7 +50,7 @@ def ittc57(speed: float,
 def hughes(speed: float,
            dimension: float,
            kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C) -> float:
-    """Friction Coefficient) according to the Hughes friction line.
+    """Friction Coefficient according to the Hughes friction line.
 
     The Hughes friction line replaced the ittc57 friction lin
      in the 2013 ORC VPP
@@ -172,4 +172,4 @@ def bulb_friction_coefficient(speed: float,
     interp = UnivariateSpline(reynolds_numbers, bulb_cfs, k=2, s=0.000001)
     # interp = interp1d(reynolds_numbers, bulb_Cfs, kind='slinear', bounds_error=False, fill_value=0.)
 
-    return interp(rn)
+    return float(interp(rn))
