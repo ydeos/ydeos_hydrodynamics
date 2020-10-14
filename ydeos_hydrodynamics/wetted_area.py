@@ -7,7 +7,10 @@ from ydeos_hydrodynamics.memoize import memoize
 
 
 @memoize
-def _get_interpolator_wetted_area(upright_wsa: float, bwl: float, Tc: float, Cm: float) -> interp1d:
+def _get_interpolator_wetted_area(upright_wsa: float,
+                                  bwl: float,
+                                  Tc: float,
+                                  Cm: float) -> interp1d:
     heel_angles = [0.00, 5.00, 10.00, 15.00, 20.00, 25.00, 30.00, 35.00]
 
     s0 = [0.000, -4.112, -4.522, -3.291, 1.850, 6.510, 12.334, 14.648]
@@ -23,16 +26,25 @@ def _get_interpolator_wetted_area(upright_wsa: float, bwl: float, Tc: float, Cm:
                            s3[i] * Cm))
                   for i in range(8)]
 
-    return interp1d(heel_angles, wsa_heeled, kind='cubic', bounds_error=False,
+    return interp1d(heel_angles,
+                    wsa_heeled,
+                    kind='cubic',
+                    bounds_error=False,
                     fill_value=wsa_heeled[-1])
 
 
-def wetted_area(upright_wsa: float, bwl: float, Tc: float, Cm: float, heel: float) -> float:
+def wetted_area(upright_wsa: float,
+                bwl: float,
+                Tc: float,
+                Cm: float,
+                heel: float) -> float:
     r"""Estimated wetted area for a given heel_angle.
 
     Estimation of wetted surface area when heeled
     Value out of -35° <-> 35° of heel is equal to the value at 35°
 
+    Parameters
+    ----------
     upright_wsa : Wetted area when the boat is upright
     bwl : Beam at waterline
     Tc : Canoe body draft
@@ -43,7 +55,7 @@ def wetted_area(upright_wsa: float, bwl: float, Tc: float, Cm: float, heel: floa
     if heel < 0:
         heel = -heel
     interp = _get_interpolator_wetted_area(upright_wsa, bwl, Tc, Cm)
-    return interp(heel)
+    return float(interp(heel))
 
 
 # the class version should now be slower because of the overhead than the function that calls a
