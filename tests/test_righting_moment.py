@@ -30,8 +30,9 @@ def test_known_value_rm_estimate_gerritsma():
     assert True
 
 
-def test_negative_lwl_rm_estimate_gerritsma():
-    r"""Negative lwl."""
+def test_wrong_input_rm_estimate_gerritsma():
+    r"""Problematic input for heeling righting moment."""
+    # negative lwl
     with pytest.raises(ValueError):
         rm_estimate_gerritsma(boatspeed=1.,
                               heel_angle=30.,
@@ -41,6 +42,46 @@ def test_negative_lwl_rm_estimate_gerritsma():
                               Tc=Tc,
                               Gdwl=Gdwl,
                               rho_water=rho_water)
+    # zero displacement
+    with pytest.raises(ValueError):
+        rm_estimate_gerritsma(boatspeed=1.,
+                              heel_angle=30.,
+                              displacement=0.,
+                              lwl=lwl,
+                              bwl=bwl,
+                              Tc=Tc,
+                              Gdwl=Gdwl,
+                              rho_water=rho_water)
+    # zero bwl
+    with pytest.raises(ValueError):
+        rm_estimate_gerritsma(boatspeed=1.,
+                              heel_angle=30.,
+                              displacement=displacement,
+                              lwl=lwl,
+                              bwl=0.,
+                              Tc=Tc,
+                              Gdwl=Gdwl,
+                              rho_water=rho_water)
+    # zero Tc
+    with pytest.raises(ValueError):
+        rm_estimate_gerritsma(boatspeed=1.,
+                              heel_angle=30.,
+                              displacement=displacement,
+                              lwl=lwl,
+                              bwl=bwl,
+                              Tc=0.,
+                              Gdwl=Gdwl,
+                              rho_water=rho_water)
+    # problematic rho_water
+    with pytest.raises(ValueError):
+        rm_estimate_gerritsma(boatspeed=1.,
+                              heel_angle=30.,
+                              displacement=displacement,
+                              lwl=lwl,
+                              bwl=bwl,
+                              Tc=Tc,
+                              Gdwl=Gdwl,
+                              rho_water=930.)
 
 
 def test_rm_sign_and_symmetry_rm_estimate_gerritsma():
@@ -193,3 +234,52 @@ def test_trm_zero_heel_moving_trm_estimate():
     assert s.x == 0.
     assert s.y == 0.
     assert s.z == 0.
+
+
+def test_wrong_input_trm_estimate():
+    r"""Problematic input for trim righting moment."""
+    # negative lwl
+    with pytest.raises(ValueError):
+        trm_estimate(trim_angle=30.,
+                     displacement=displacement,
+                     lwl=-lwl,
+                     bwl=bwl,
+                     Tc=Tc,
+                     Gdwl=Gdwl,
+                     rho_water=rho_water)
+    # zero displacement
+    with pytest.raises(ValueError):
+        trm_estimate(trim_angle=30.,
+                     displacement=0.,
+                     lwl=lwl,
+                     bwl=bwl,
+                     Tc=Tc,
+                     Gdwl=Gdwl,
+                     rho_water=rho_water)
+    # zero bwl
+    with pytest.raises(ValueError):
+        trm_estimate(trim_angle=30.,
+                     displacement=displacement,
+                     lwl=lwl,
+                     bwl=0.,
+                     Tc=Tc,
+                     Gdwl=Gdwl,
+                     rho_water=rho_water)
+    # zero Tc
+    with pytest.raises(ValueError):
+        trm_estimate(trim_angle=30.,
+                     displacement=displacement,
+                     lwl=lwl,
+                     bwl=bwl,
+                     Tc=0.,
+                     Gdwl=Gdwl,
+                     rho_water=rho_water)
+    # problematic rho_water
+    with pytest.raises(ValueError):
+        trm_estimate(trim_angle=30.,
+                     displacement=displacement,
+                     lwl=lwl,
+                     bwl=bwl,
+                     Tc=Tc,
+                     Gdwl=Gdwl,
+                     rho_water=930.)
