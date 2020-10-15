@@ -126,17 +126,6 @@ def test_known_value_ballast_viscous():
     assert abs(bvra_2e5.fx) > abs(bvra.fx)
 
 
-def test_negative_length_ballast_viscous():
-    r"""Negative length."""
-    with pytest.raises(ValueError):
-        ballast_viscous(boatspeed=1.,
-                        heel_angle=0.,
-                        coe=(0.5, 0., -0.2),
-                        bulb_length=-0.37,
-                        bulb_diameter=0.037,
-                        bulb_wetted_area=0.02)
-
-
 def test_coe_shift_ballast_viscous():
     r"""Test position change of centre of effort."""
     force = ballast_viscous(boatspeed=1.,
@@ -206,17 +195,6 @@ def test_known_value_hull_viscous():
     assert abs(hfra.fx) == 397.13619865572065
 
 
-def test_negative_lwl_hull_viscous():
-    r"""Test a negative length at waterline."""
-    # Negative lwl
-    with pytest.raises(ValueError):
-        hull_viscous(boatspeed=3.5,
-                     coe=(0.5, 0., -0.02),
-                     lwl=-10.,
-                     Sc=25.2,
-                     rho_water=1025.)
-
-
 def test_resistance_sign_and_symmetry_hull_viscous():
     r"""Test the resistance sign and symmetry."""
     force = hull_viscous(boatspeed=1.,
@@ -231,3 +209,221 @@ def test_resistance_sign_and_symmetry_hull_viscous():
                                    rho_water=1025.)
     assert force.fx == -force_backwards.fx
     assert force.fx < 0
+
+
+# Wrong input hull
+
+
+def test_negative_lwl_hull_viscous():
+    r"""Test a negative length at waterline."""
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=-10.,
+                     Sc=25.2,
+                     rho_water=1025.)
+
+
+def test_zero_wetted_area_hull_viscous():
+    r"""Test a zero wetted area."""
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=0.,
+                     rho_water=1025.)
+
+
+def test_too_big_wetted_area_hull_viscous():
+    r"""Test a too big wetted area."""
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=51.,
+                     rho_water=1025.)
+
+
+def test_wrong_multiplier_hull_viscous():
+    r"""Test a wrong lwl multiplier."""
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=25.2,
+                     rho_water=1025.,
+                     lwl_multiplier=0.69)
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=25.2,
+                     rho_water=1025.,
+                     lwl_multiplier=1.01)
+
+
+def test_negative_transition_rn_hull_viscous():
+    r"""Negative transition reynolds."""
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=25.2,
+                     rho_water=1025.,
+                     transition_reynolds_number=-100)
+
+
+def test_wrong_formfactor_hull_viscous():
+    r"""Test a wrong form factor."""
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=25.2,
+                     rho_water=1025.,
+                     form_factor=0.89)
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=25.2,
+                     rho_water=1025.,
+                     form_factor=1.61)
+
+
+def test_wrong_rhowater_hull_viscous():
+    r"""Test a wrong rho water."""
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=25.2,
+                     rho_water=900.)
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=25.2,
+                     rho_water=1100.)
+
+
+def test_zero_kinematic_viscosity_hull_viscous():
+    r"""Test a zerp kinematic viscosity."""
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=25.2,
+                     kinematic_viscosity=0.)
+
+
+def test_wrong_friction_line_hull_viscous():
+    r"""Friction line unknown."""
+    with pytest.raises(ValueError):
+        hull_viscous(boatspeed=3.5,
+                     coe=(0.5, 0., -0.02),
+                     lwl=10.,
+                     Sc=25.2,
+                     turbulent_friction_line=test_zero_kinematic_viscosity_hull_viscous)
+
+# Wrong inputs ballast
+
+
+def test_negative_length_ballast_viscous():
+    r"""Negative length."""
+    with pytest.raises(ValueError):
+        ballast_viscous(boatspeed=1.,
+                        heel_angle=0.,
+                        coe=(0.5, 0., -0.2),
+                        bulb_length=-0.37,
+                        bulb_diameter=0.037,
+                        bulb_wetted_area=0.02)
+
+
+def test_zero_diameter_ballast_viscous():
+    r"""Zero diameter."""
+    with pytest.raises(ValueError):
+        ballast_viscous(boatspeed=1.,
+                        heel_angle=0.,
+                        coe=(0.5, 0., -0.2),
+                        bulb_length=0.37,
+                        bulb_diameter=0.,
+                        bulb_wetted_area=0.02)
+
+
+def test_diameter_too_big_ballast_viscous():
+    r"""Diameter too big."""
+    with pytest.raises(ValueError):
+        ballast_viscous(boatspeed=1.,
+                        heel_angle=0.,
+                        coe=(0.5, 0., -0.2),
+                        bulb_length=0.37,
+                        bulb_diameter=0.2,
+                        bulb_wetted_area=0.02)
+
+
+def test_zero_wetted_area_ballast_viscous():
+    r"""Zero wetted area."""
+    with pytest.raises(ValueError):
+        ballast_viscous(boatspeed=1.,
+                        heel_angle=0.,
+                        coe=(0.5, 0., -0.2),
+                        bulb_length=0.37,
+                        bulb_diameter=0.037,
+                        bulb_wetted_area=0.)
+
+
+def test_negative_transition_rn_ballast_viscous():
+    r"""Negative transition reynolds."""
+    with pytest.raises(ValueError):
+        ballast_viscous(boatspeed=1.,
+                        heel_angle=0.,
+                        coe=(0.5, 0., -0.2),
+                        bulb_length=0.37,
+                        bulb_diameter=0.037,
+                        bulb_wetted_area=0.02,
+                        transition_reynolds_number=-100.)
+
+
+def test_wrong_rho_water_ballast_viscous():
+    r"""Rho water outside acceptable range."""
+    with pytest.raises(ValueError):
+        ballast_viscous(boatspeed=1.,
+                        heel_angle=0.,
+                        coe=(0.5, 0., -0.2),
+                        bulb_length=0.37,
+                        bulb_diameter=0.037,
+                        bulb_wetted_area=0.02,
+                        rho_water=900)
+    with pytest.raises(ValueError):
+        ballast_viscous(boatspeed=1.,
+                        heel_angle=0.,
+                        coe=(0.5, 0., -0.2),
+                        bulb_length=0.37,
+                        bulb_diameter=0.037,
+                        bulb_wetted_area=0.02,
+                        rho_water=1100)
+
+
+def test_zero_kinematic_viscosity_ballast_viscous():
+    r"""Zero kinematic viscosity."""
+    with pytest.raises(ValueError):
+        ballast_viscous(boatspeed=1.,
+                        heel_angle=0.,
+                        coe=(0.5, 0., -0.2),
+                        bulb_length=0.37,
+                        bulb_diameter=0.037,
+                        bulb_wetted_area=0.02,
+                        kinematic_viscosity=0.)
+
+
+def test_wrong_friction_line_ballast_viscous():
+    r"""Friction line not a good value."""
+    with pytest.raises(ValueError):
+        ballast_viscous(boatspeed=1.,
+                        heel_angle=0.,
+                        coe=(0.5, 0., -0.2),
+                        bulb_length=0.37,
+                        bulb_diameter=0.037,
+                        bulb_wetted_area=0.02,
+                        turbulent_friction_line=test_zero_kinematic_viscosity_ballast_viscous)
