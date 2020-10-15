@@ -29,20 +29,14 @@ class Sysser01:
     Cp = 0.5644135025
 
 
-# fns = [0.2, 0.3, 0.4, 0.5]
 fns = np.linspace(start=0., stop=0.8, num=100, endpoint=True)
 
-sysser01_r_ks = list()
-sysser01_r_la = list()
-sysser01_r_orc = list()
-sysser01_r_mit = list()
+sysser01_r_ks, sysser01_r_la, sysser01_r_orc, sysser01_r_mit = [], [], [], []
 
 for fn in fns:
-    print("Fn : %.2f" % fn)
-
+    print(f"Froude number : {fn:.2f}")
     v = speed_ms(froude=fn, lwl=Sysser01.lwl)
-
-    print("V : %.2f [m/s]" % v)
+    print(f"V : {v:.2f} [m/s]")
 
     sysser01_visc = -hull_viscous(v, Sysser01.lwl, Sysser01.wsa).fx
 
@@ -92,17 +86,6 @@ for fn in fns:
     else:
         raise ValueError("Unknown plot type")
 
-    # print(60 * '*')
-    # print("Fn : %f" % fn)
-    # print("Speed : %f" % v)
-    # print("")
-    # print("Sysser01")
-    # print(sysser01_visc)
-    # print(sysser01_rrks)
-    # print(sysser01_rrla)
-    # print(sysser01_visc + sysser01_rrks)
-    # print(sysser01_visc + sysser01_rrla)
-
 plt.plot(fns, sysser01_r_ks,
          c="b",
          ls="--",
@@ -140,8 +123,8 @@ if plot_type == "viscous+residuary":
 
 plt.legend()
 plt.grid()
-plt.title("R [N] - %s" % plot_type)
-plt.xlabel("Fn")
+plt.title(f"R [N] - {plot_type}")
+plt.xlabel("Froude number")
 plt.ylabel("Resistance")
 
 plt.show()

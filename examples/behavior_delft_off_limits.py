@@ -35,27 +35,19 @@ bwls = np.linspace(0.10, 0.3, 100)
 
 base_volume = lwl * b * t * cm * cp
 
-print("base volume is %f" % (base_volume * 1000))
+print(f"Base volume is {base_volume * 1000} [l]")
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+# data lists for data within limits
+xdata, ydata, zdata = [], [],  []
 
-# data lists for when data is within limits
-xdata = []
-ydata = []
-zdata = []
-# data lists for when data is off limits
-xdata_off_limits = []
-ydata_off_limits = []
-zdata_off_limits = []
-# mit
-xdata_mit = []
-ydata_mit = []
-zdata_mit = []
+# data lists for off limits data
+xdata_off_limits, ydata_off_limits, zdata_off_limits = [], [], []
+
+# mit wave resistance model for comparison
+xdata_mit, ydata_mit, zdata_mit = [], [], []
 
 for x in speeds:
     for bwl in bwls:
-
         r = -hull_residuary_resistance_ks_series4(boatspeed=x,
                                                   Vc=base_volume,
                                                   lwl=lwl,
@@ -85,13 +77,27 @@ for x in speeds:
             ydata.append(bwl)
             zdata.append(r)
 
-ax.plot_trisurf(xdata, ydata, zdata, color='chartreuse', shade=False)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+ax.plot_trisurf(xdata,
+                ydata,
+                zdata,
+                color='chartreuse',
+                shade=False,
+                label="within limits")
 ax.plot_trisurf(xdata_off_limits,
                 ydata_off_limits,
                 zdata_off_limits,
                 color='grey',
-                shade=False)
-ax.plot_trisurf(xdata_mit, ydata_mit, zdata_mit, color='darkblue', shade=False)
+                shade=False,
+                label="off limits")
+ax.plot_trisurf(xdata_mit,
+                ydata_mit,
+                zdata_mit,
+                color='darkblue',
+                shade=False,
+                label="mit")
 
 ax.set_xlabel('Speed [m/s]')
 ax.set_ylabel('Bwl [m]')
