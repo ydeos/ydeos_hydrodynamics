@@ -7,7 +7,7 @@ Values from p204 example in Principles of Yacht Design
 
 """
 
-from ydeos_hydrodynamics.savitski import savitsky_report
+from ydeos_hydrodynamics.savitsky import savitsky_report
 
 savitsky_report(boatspeed=20.6,
                 m=9750.,

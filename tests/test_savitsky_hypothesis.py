@@ -6,7 +6,7 @@ r"""Hypothesis tests for the savitski.py module"""
 from hypothesis import given
 import hypothesis.strategies as st
 
-from ydeos_hydrodynamics.savitski import _cl_beta_cl_zero, _lambda
+from ydeos_hydrodynamics.savitsky import _cl_beta_cl_zero, _lambda
 
 
 @given(boatspeed=st.floats(min_value=0.01, exclude_min=True, max_value=200.),
