@@ -344,6 +344,40 @@ def savitsky_plot_moment_vs_trim_angle(boatspeed: float,
     pyplot.show()
 
 
+def savitsky_report_lines(boatspeed: float,
+                          m: float,
+                          LCG: float,
+                          VCG: float,
+                          b: float,
+                          epsilon: float,
+                          beta: float,
+                          f: float,
+                          rho_water: float = RHO_SEA_WATER_20C,
+                          kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
+                          gravity: float = GRAVITY_STANDARD) -> Tuple[str, ...]:
+    r"""Report lines for the Savitsky method"""
+    zero_bow_down_moment_trim_angle, M, Mh, Mf, Ma, R, Rf, Ra, ff, fa, Cv, Cl_beta, Cl_zero, lambda_, delta_lambda, Lcp, e = \
+        savitsky(boatspeed, m, LCG, VCG, b, epsilon, beta, f, rho_water, kinematic_viscosity, gravity)
+    lines = (f"  Trim angle : {zero_bow_down_moment_trim_angle:.3f}",
+             f"           M : {M:.3f}",
+             f"          Mh : {Mh:.3f}",
+             f"          Mf : {Mf:.3f}",
+             f"          Ma : {Ma:.3f}",
+             f"           R : {R:.3f}",
+             f"          Rf : {Rf:.3f}",
+             f"          Ra : {Ra:.3f}",
+             f"          ff : {ff:.3f}",
+             f"          fa : {fa:.3f}",
+             f"          Cv : {Cv:.3f}",
+             f"     Cl_beta : {Cl_beta:.3f}",
+             f"     Cl_zero : {Cl_zero:.3f}",
+             f"      lambda : {lambda_:.3f}",
+             f"delta_lambda : {delta_lambda:.3f}",
+             f"         Lcp : {Lcp:.3f}",
+             f"           e : {e:.3f}")
+    return lines
+
+
 def savitsky_report(boatspeed: float,
                     m: float,
                     LCG: float,
@@ -356,22 +390,5 @@ def savitsky_report(boatspeed: float,
                     kinematic_viscosity: float = KINEMATIC_VISCOSITY_WATER_20C,
                     gravity: float = GRAVITY_STANDARD) -> None:
     r"""Print a report to stdout"""
-    zero_bow_down_moment_trim_angle, M, Mh, Mf, Ma, R, Rf, Ra, ff, fa, Cv, Cl_beta, Cl_zero, lambda_, delta_lambda, Lcp, e = \
-        savitsky(boatspeed, m, LCG, VCG, b, epsilon, beta, f, rho_water, kinematic_viscosity, gravity)
-    print("  Trim angle : %.3f" % zero_bow_down_moment_trim_angle)
-    print("           M : %.3f" % M)
-    print("          Mh : %.3f" % Mh)
-    print("          Mf : %.3f" % Mf)
-    print("          Ma : %.3f" % Ma)
-    print("           R : %.3f" % R)
-    print("          Rf : %.3f" % Rf)
-    print("          Ra : %.3f" % Ra)
-    print("          ff : %.3f" % ff)
-    print("          fa : %.3f" % fa)
-    print("          Cv : %.3f" % Cv)
-    print("     Cl_beta : %.3f" % Cl_beta)
-    print("     Cl_zero : %.3f" % Cl_zero)
-    print("      lambda : %.3f" % lambda_)
-    print("delta_lambda : %.3f" % delta_lambda)
-    print("         Lcp : %.3f" % Lcp)
-    print("           e : %.3f" % e)
+    lines = savitsky_report_lines(boatspeed, m, LCG, VCG, b, epsilon, beta, f, rho_water, kinematic_viscosity, gravity)
+    print("\n".join(lines))
