@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-r"""Hypothesis tests for the savitski.py module"""
+r"""Hypothesis tests for the savitsky.py module"""
 
 from hypothesis import given
 import hypothesis.strategies as st
@@ -9,7 +9,7 @@ import hypothesis.strategies as st
 from ydeos_hydrodynamics.savitsky import _cl_beta_cl_zero, _lambda
 
 
-@given(boatspeed=st.floats(min_value=0.01, exclude_min=True, max_value=200.),
+@given(boatspeed=st.floats(min_value=0.01, exclude_min=True, max_value=100.),
        m=st.floats(min_value=0.01, exclude_min=True, max_value=500000000.),
        b=st.floats(min_value=0.01, exclude_min=True, max_value=500.),
        beta=st.floats(min_value=0., max_value=90.))

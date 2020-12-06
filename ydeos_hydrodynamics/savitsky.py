@@ -23,9 +23,13 @@ def root_scalar_no_fallback(func: Callable,
                             x0: float,
                             x1: float,
                             xtol: float,
-                            min_value: float) -> Union[float, None]:
+                            min_value: float,
+                            max_value: float) -> Union[float, None]:
     sol = root_scalar(func, method="secant", x0=x0, x1=x1, xtol=xtol)
-    if sol.converged is True and type(sol.root) == float and sol.root > min_value:
+    if (sol.converged is True
+            and isinstance(sol.root, float)
+            and min_value < sol.root <= max_value
+            and sol.flag == "converged"):
         return sol.root
     else:
         return None
@@ -36,14 +40,21 @@ def root_scalar_with_fallback(func: Callable,
                               x1: float,
                               bracket: Tuple[float, float],
                               xtol: float,
-                              min_value: float) -> Union[float, None]:
+                              min_value: float,
+                              max_value: float) -> Union[float, None]:
     r"""Root finding that tries another method if the first did not work properly"""
     sol = root_scalar(func, method="secant", x0=x0, x1=x1, xtol=xtol)
-    if sol.converged is True and type(sol.root) == float and sol.root > min_value:
+    if (sol.converged is True
+            and isinstance(sol.root, float)
+            and min_value < sol.root <= max_value
+            and sol.flag == "converged"):
         return sol.root
     else:
         sol = root_scalar(func, method="brentq", bracket=bracket, xtol=xtol)
-        if sol.converged is True and type(sol.root) == float and sol.root > min_value:
+        if (sol.converged is True
+                and isinstance(sol.root, float)
+                and min_value < sol.root <= max_value
+                and sol.flag == "converged"):
             return sol.root
         else:
             return None
@@ -71,7 +82,7 @@ def _cl_beta_cl_zero(boatspeed: float,
     Cl_beta = m * gravity / (0.5 * rho_water * boatspeed**2 * b**2)
 
     # The check might seem useless but floating point precision near zero may play bad tricks !!
-    if type(Cl_beta) == float and Cl_beta > 0:
+    if isinstance(Cl_beta, float) and Cl_beta > 0:
         # Determine Cl_zero
         def func(cl_z):
             r"""Function for which we search a root"""
@@ -79,7 +90,7 @@ def _cl_beta_cl_zero(boatspeed: float,
             return cl_z - 0.0065 * beta * cl_z**0.6 - Cl_beta
 
         Cl_zero = root_scalar_with_fallback(func, x0=Cl_beta, x1=10*Cl_beta,
-                                            bracket=(0., 100.), xtol=1e-6, min_value=0.)
+                                            bracket=(0., 100.), xtol=1e-6, min_value=0., max_value=float('inf'))
 
         if Cl_zero is not None:
             return Cl_beta, Cl_zero
@@ -103,7 +114,7 @@ def _lambda(trim_angle: float, Cv: float, Cl_zero: float) -> float:
         return trim_angle**1.1 * (0.012 * lambd**0.5 + 0.0055 * lambd**2.5 / Cv**2) - Cl_zero
 
     # Could not use the fallback version as the bracket elements have the same sign
-    lambda_ = root_scalar_no_fallback(func, x0=0., x1=10., xtol=1e-6, min_value=0.)
+    lambda_ = root_scalar_no_fallback(func, x0=0., x1=10., xtol=1e-6, min_value=0., max_value=float('inf'))
 
     if lambda_ is not None:
         return lambda_
@@ -245,9 +256,9 @@ def savitsky(boatspeed: float,
         r"""The function for which we search a root"""
         return bow_down_moment(boatspeed, trim_angle, m, LCG, VCG, b, epsilon,
                                beta, f, rho_water, kinematic_viscosity, gravity)[0]
-
+    MAX_TRIM = 50.
     tau_0M = root_scalar_with_fallback(func, x0=0., x1=45.,
-                                       bracket=(0., 45), xtol=1e-6, min_value=0.)
+                                       bracket=(0., 45), xtol=1e-6, min_value=0., max_value=MAX_TRIM)
 
     if tau_0M is not None:
         zero_bow_down_moment_trim_angle = tau_0M
