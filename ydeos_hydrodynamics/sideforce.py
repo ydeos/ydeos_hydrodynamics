@@ -316,14 +316,14 @@ def sideforce_production_keuning_verwerft(boatspeed: float,
                          /
                          (0.5 * rho_water * keel_projected_area *
                           boatspeed ** 2 * pi * oswald_efficiency_factor *
-                          keel_effective_aspect_ratio))
+                          keel_effective_aspect_ratio)) if boatspeed != 0. else 0.
 
     induced_drag_rudder = (lift_rudder ** 2
                            /
                            (0.5 * rho_water * rudder_projected_area *
                             (0.9 * boatspeed) ** 2 * pi
                             * oswald_efficiency_factor *
-                            rudder_effective_aspect_ratio))
+                            rudder_effective_aspect_ratio)) if boatspeed != 0. else 0.
 
     lift_hull = (lift_keel + lift_rudder) - ((lift_keel + lift_rudder) / c_hull)
     # induced_drag = induced_drag_keel + induced_drag_rudder

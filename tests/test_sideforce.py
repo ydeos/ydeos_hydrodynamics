@@ -27,6 +27,24 @@ def test_known_value_sideforce_by_element_fossati():
     assert True
 
 
+def test_zero_boatspeed_sideforce_by_element_fossati():
+    r"""Zero boatspeed."""
+    f = sideforce_by_element_fossati(boatspeed=0.,
+                                     heel_angle=0.,
+                                     leeway_angle=4.,
+                                     rudder_angle=0.,
+                                     coe=(0.5, 0., -0.1),
+                                     projected_area=0.03,
+                                     span=0.2,
+                                     aspect_ratio_multiplier=2.,
+                                     use_cos_heel_angle=True,
+                                     rudder_angle_influence=0.5,
+                                     rho_water=1025.)
+    assert f.fx == 0.
+    assert f.fy == 0.
+    assert f.fz == 0.
+
+
 def test_negative_projected_area_sideforce_by_element_fossati():
     r"""Negative projected area."""
     with pytest.raises(ValueError):
@@ -577,3 +595,28 @@ def test_coe_position_sideforce_production_keuning_verwerft():
     # assert force.position[2] > - 0.2167
 
     assert sof_2.moment[2] < 0
+
+
+def test_zero_boatspeed_sideforce_production_keuning_verwerft():
+    r"""The boatspeed is zero."""
+    forces = \
+        sideforce_production_keuning_verwerft(boatspeed=0.,
+                                              heel_angle=-20.,
+                                              leeway_angle=5.,
+                                              rudder_angle=5.,
+                                              keel_projected_area=0.025240,
+                                              keel_span=0.42 - Tc - bulb_diameter,
+                                              rudder_projected_area=0.012402,
+                                              rudder_span=0.248,
+                                              lwl=lwl,
+                                              bwl=bwl,
+                                              Tc=Tc,
+                                              # hull_coe=None,
+                                              keel_coe=(0.460, 0., -0.2167),
+                                              rudder_coe=(0.0536, 0., -0.11495),
+                                              keel_sweep_back_angle=20.)
+    assert len(forces) == 3
+    for f in forces:
+        assert f.fx == 0.
+        assert f.fy == 0.
+        assert f.fz == 0.

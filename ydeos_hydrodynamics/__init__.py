@@ -6,7 +6,7 @@ r"""ydeos_hydrodynamics __init__.py."""
 __project_name__ = "ydeos_hydrodynamics"
 __description__ = "Hydrodynamics computations"
 
-__version__ = "2020.10.10"
+__version__ = "2020.12.06"
 __author__ = "Guillaume Florent"
 __author_email__ = "florentsailing@gmail.com"
 __license__ = 'GPL v3'
