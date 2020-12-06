@@ -1,8 +1,9 @@
 # coding: utf-8
 
-r"""Savitski method for planning hulls"""
+r"""Savitsky method for planning hulls"""
 
 from typing import Callable, Union, Tuple
+import logging
 from math import sqrt, radians, cos, tan, sin
 import numpy as np
 from scipy.interpolate import interp1d
@@ -14,6 +15,8 @@ from ydeos_hydrodynamics.friction_lines import ittc57
 from ydeos_hydrodynamics.water import RHO_WATER_MIN, RHO_WATER_MAX
 from ydeos_hydrodynamics.force import Force
 from ydeos_hydrodynamics.memoize import memoize
+
+logger = logging.getLogger(__name__)
 
 
 def root_scalar_no_fallback(func: Callable,
@@ -248,7 +251,7 @@ def savitsky(boatspeed: float,
 
     if tau_0M is not None:
         zero_bow_down_moment_trim_angle = tau_0M
-        print("Solver")
+        logger.debug("Solver")
     else:
         trim_angles = np.linspace(0., 45., 1000)
         Ms = [bow_down_moment(boatspeed,
@@ -267,7 +270,7 @@ def savitsky(boatspeed: float,
         i = interp1d(list(Ms), trim_angles)
 
         zero_bow_down_moment_trim_angle = i(0.)
-        print("Brute force interpolation")
+        logger.debug("Brute force interpolation")
 
     # Recompute everything using the equilibrium trim angle
     M, Mh, Mf, Ma, R, Rf, Ra, ff, fa, Cv, Cl_beta, Cl_zero, lambda_, delta_lambda, Lcp, e = \
